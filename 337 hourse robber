@@ -1,0 +1,75 @@
+/*
+    337 house robber III
+*/
+
+     1  
+    / \
+   4   1
+  / \   \ 
+ 1   1   5
+ 
+/*
+    you can't choose two houses that are linked together. although nodes on each layer is not connected, choosing an entire layer may not lead to the largest amount.
+    
+    you can use backtracking to enumerate all possible solutions. if you choose the current root, you can't choose any of its children (if both exist), if you do not choose the current root, you can choose either of its children (if at least one exists) or both (if both exist) or neither. you can pass in a boolean to the backtrack function to indicate if the current root must NOT be chosen or it can be chosen or not.
+    
+    
+    the exist condition is when you've visited the last node of the tree, which node is the last depends on how you want to traverse the tree. e.g., if you are doing pre-order, the right most node will be the last node. you can
+
+*/ 
+
+var rob = function(root) {
+    var rightMost, cur;
+    cur = root;
+    while (cur.right) {
+        cur = cur.right;
+    }
+    
+    rightMost = cur;
+    
+    var data = {last: rightMost, canChoose: true, sum: 0}, solution = [], i, max = 0;
+    backtrack(root, solution, data);
+    
+    for (i = 0; i < solution.length; i++) {
+        if (solution[i] > max) {
+            max = solution[i];
+        }
+    }
+    
+    return max;
+}
+
+function backtrack(root, solution, data) {
+    if (!root) {
+        return;
+    }
+    
+    if (root === data.rightMost) {
+        if (data.canChoose) {
+            data.sum += root.val;
+            solution.push(data.sum);
+            data.sum -= root.val;
+        } else {
+            solution.push(data.sum);
+        }
+        
+        return;
+    }
+    
+    if (canChoose) {
+        // choose the current node
+        data.sum += root.val;
+        data.canChoose = false;
+        backtrack(root.left, solution, data);
+        backtrack(root.right, solution, data);
+        data.sum -= root.val;
+    }
+    
+    // don't choose the current node
+    // either because the canChoose is false
+    // or canChoose is true but we just don't choose it
+    data.canChoose = true;
+    backtrack(root.left, solution, data);
+    backtrack(root.right, solution, data);
+}
+ 

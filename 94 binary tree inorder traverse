@@ -1,0 +1,35 @@
+/*
+    94 binary tree inorder traverse
+*/
+var inorderTraversal = function(root) {
+    if (!root) {
+        return [];
+    }
+    
+    var stack = [], numbers = [], cur;
+    stack.push(root);
+    while (stack.length > 0) {
+        cur = stack[stack.length - 1];
+        if (!cur.visited) {
+            if (cur.left) {
+                stack.push(cur.left);
+                cur.visited = true;
+            } else {
+                stack.pop();
+                numbers.push(cur.val);
+                if (cur.right) {
+                    stack.push(cur.right);
+                }
+            }
+        } else {
+            stack.pop();
+            delete cur.visited;
+            numbers.push(cur.val);
+            if (cur.right) {
+                stack.push(cur.right);
+            }
+        }
+    }
+    
+    return numbers;
+};

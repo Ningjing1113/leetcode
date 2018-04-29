@@ -1,0 +1,88 @@
+/*
+    17 3sum to zero
+*/
+
+/*
+    if you sort the array and first element that is >= 0, which separates the negative portion and positive portion of the array, then you can use 3 pointers to gather the pair of three.
+    
+    The first pointer starts at the first negative number, the second and third one starts at the first and the last element of the positive part. now the reverse of the negative number is the value you try to collect from the positive part by choosing two numbers.
+    
+    since the array is sorted, the positive part is sorted. if the positive sub array has all the same number, e.g. 1, 1, 1, 1, 1, any two of them will add up to the same sum. the smallest diff in an increasing array is 1, so in case of 1, 2, 3, 4, if you start from the first and the last elements and move the pointer towards the center one step a time at the same time, you will always have the same sum. now if you keep the left pointer, which points to the smaller number and move the right pointer, you sum will decrease; if you keep the right pointer and move the left one, you sum will increase.
+    
+    now think about a ramdom increasing sequence of number, how the sum would change if you move one of the two pointers or both? if you move the left one, your sum will still increase; if you move the right one, your sum will still decrease; if you move both one step towards the middle at the same time, the sum may increase or descrease because by moving the left, you increased a bit, by moving the right, you decreased a bit, depending on which part is larger, your sum will either increase or decrease.
+    
+    this is the analysis for moving two pointers from two end in a sorted ascending array. you have the similar effect if you start from one side, i.e., the left side, and start increasing the number of elements you included into the window guarded by the two pointers. your sum of the elements in the window increases if you only move the right pointer, decreases if you only move the right. if you move both at the same time same steps, the sum change depends.
+    [-1, 0, 1, 2, -1, -4]
+*/
+
+var threeSum = function(nums) {
+    if (!nums || nums.length < 3) {
+        return [];
+    }
+    
+    nums.sort((a,b) => {return a - b});
+    var i, j, k, mid, pairs = [];
+    i = 0;
+    while (i < nums.length && nums[i] < 0) {
+        i++;
+    }
+    
+    if (i === nums.length) {
+        return [];   
+    }
+    
+    // all elements in nums >= 0
+    if (i === 0) {
+        // [1, 3, 4][0, 0, 0, 0], [0, 0, 0, 1, 2, 4]
+        while (i < nums.length && nums[i] === 0) {
+            i++;
+            if (i > 1) {
+                pairs.push([0, 0, 0]);
+                return;
+            }
+        }
+    }
+    
+    mid = i;
+    k = 0; 
+    while (k < mid) {
+        var target = (-1) * nums[k];
+        i = mid;
+        j = nums.length - 1;
+        while (i < j) {
+            var sum = nums[i] + nums[j];
+            if (sum === target) {
+                pairs.push([nums[k], nums[i], nums[j]]);
+                nextNonEqualInc(nums, i);
+                nextNonEqualDec(nums, j);
+            } else if (sum < target) {
+                nextNonEqualInc(nums, i);
+            } else {
+                nextNonEqualDec(nums, j);
+            }
+        }
+        
+        k++;
+        while (k < mid && nums[k] === nums[k - 1]){
+            k++;
+        }
+    }
+    
+    return pairs;
+}
+
+function nextNonEqualInc(nums, i) {
+    while (i + 1 < nums.length && nums[i] === nums[i+1]) {
+        i++;
+    }
+    
+    return i + 1;
+}
+
+function nextNonEqualDec(nums, i) {
+    while (i - 1 >= 0 && nums[i] === nums[i - 1]) {
+        i--;
+    }
+    
+    return i - 1;
+}

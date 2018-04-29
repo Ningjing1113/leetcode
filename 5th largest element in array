@@ -1,0 +1,41 @@
+/*
+    5th largest element in array
+*/
+
+var 5thLargest = function(nums) {
+    if (!nums || nums.lenth < 5) {
+        return null;
+    }
+    
+    var target = {val: undefined};
+    partition(nums, 0, nums.length - 1, target, 5);
+    return target.val;
+}
+
+function partition(nums, low, high, target, rank) {
+    if (high - low + 1 === rank) {
+        findSmallest(nums, i+1, high, target);
+        return;
+    }
+    
+    var pivot = nums[low], i = low, j = i + 1;
+    while(j <= high) {
+        if (nums[j] <= pivot) {
+            let temp = nums[i];
+            nums[i] = nums[j];
+            nums[j] = temp;
+            i++;
+        }
+        
+        j++;
+    }
+    
+    // low ~ i  i+1 ~ high
+    if (high - i >= rank) {
+        partition(nums, i+1, high, target, rank);
+    } else {
+        let rightSize = high - i;
+        rank = rightSize ? rank - rightSize : rank - 1;
+        partition(nums, low, i, target, rank);
+    } 
+}

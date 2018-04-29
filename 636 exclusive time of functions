@@ -1,0 +1,60 @@
+/*
+    636 exclusive time of functions
+*/
+
+
+var exclusiveTime = function(n, logs) {
+    var hash = {}, stack = [], cur, top, exclusive = new Array(n), i, level = {val: 0};
+    for (i = 0; i < n; i++) {
+        exclusive[i] = 0;
+    }
+    
+    for (i = 0; i < logs.length; i++) {
+        cur = parse(logs[i], level);
+        top = stack[stack.length - 1];
+        if (!top) {
+            stack.push(cur);
+            continue;
+        }
+        
+        if (cur.level === top.level && !cur.start) {
+            var span, cumulative
+            span = cur.time - top.time + 1;
+            cumulative = hash[cur.level + 1] || 0;
+            
+            if (!hash[cur.level]) {
+                hash[cur.level] = 0;
+            }
+
+            hash[cur.level] += span;
+            hash[cur.level + 1] = 0;
+            
+            span -= cumulative;
+            exclusive[cur.fid] += span;
+            stack.pop();
+            continue;
+        }
+        
+        stack.push(cur);
+    }
+    
+    return exclusive;
+}
+
+    
+function parse(s, level) {
+    var parts = s.split(":"),
+     cur = {fid: parseInt(parts[0], 10),
+            start: parts[1] === "start",
+            time: parseInt(parts[2], 10)};
+    
+    if (cur.start) {
+        cur.level = level.val;
+        level.val++;
+    } else {
+        level.val--;
+        cur.level = level.val;
+    }
+    
+    return cur;
+}

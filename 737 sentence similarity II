@@ -1,0 +1,72 @@
+/*
+    737 sentence similarity II
+*/
+
+/*
+    var areSentencesSimilarTwo = function(word1, word2, pairs) {
+        if (!word1 || !word2) {
+            return false;
+        } else if (word1.length !== word2.length) {
+            return false;
+        }
+        
+        var hash = {}, i, k = 0, cur, visited = [], map = {};
+        for (i = 0; i < paris.length; i++) {
+            cur = pairs[i];
+            if (!hash.hasOwnProperty(cur[0])) {
+                hash[cur[0]] = k;
+                map[k] = [];
+                visited.push(false);
+                k++;
+            } 
+            
+            if (!hash.hashOwnProperty(cur[1])) {
+                hash[cur[1]] = k;
+                map[k] = [];
+                visited.push(false);
+                k++;
+            } 
+            
+            map[hash[cur[0]]].push(hash[cur[1]]);
+            map[hash[cur[1]]].push(hash[cur[0]]);
+        }
+        
+        for (i = 0; i < word1.length; i++) {
+            w1 = word1[i];
+            w2 = word2[i];
+            if (!similar(hash, map, w1, w2)) {
+                return false;
+            }
+            
+            return true;
+        }
+    }
+    
+    function similar(hash, map, w1, w2) {
+        if (w1 === w2) {
+            return true;
+        }
+        
+        i1 = hash[w1];
+        i2 = hash[w2];
+        if (!i1 || !2) {
+            return false;
+        }
+        
+        stack.push(i1);
+        while (stack.length > 0) {
+            i = stack.pop();
+            if (i === i2) {
+                return true;
+            }
+            
+            visited[i] = true;
+            for (j = 0; j < map[i].length; j++) {
+                if (map[i][j] !== i1 && !visited(map[i][j]))
+                stack.push(map[i][j]);
+            }
+        }
+        
+        return false;
+    }
+*/

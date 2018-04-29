@@ -1,0 +1,99 @@
+/*
+    215 kth largest element in an array
+*/
+/* 
+        narrow down the range and update k accordingly
+        i.e. if k is 5 and after the first partition, there are 4 elements on the left and 7 on the right; since larger elements are on the right side, you know the 5 largest one must be the 5th largest of the 7 on the right. in the second round, there are 3 element on the left and 4 on the right. the 5th largest element is now the 1 largest on the left (because those 4 on the right are the first 4 largest, so you will find the 5th largest on the left side. you need to subtract those 4 on the right, so k becomes 1)
+        
+        if after partition, your right array has more elements than k, you should keep partitioning the right array while keeping k; otherwise, you should partition the left array and update k to k - (length of the right array).
+    
+        once your subarray has k (may or may not be the origianl k) elements, return the smallest element in the subarray
+    */
+var findKthLargest = function(nums, k) {
+    var low = 0, high = nums.length - 1, pivot, mid = low;
+    while (high - low + 1 != k) {
+        pivot = nums[low];
+        mid = partition(nums, low, high, pivot);
+        
+        /* when mid equals low after the partition, the pivot value is the smallest in the sub array; thus, not able to divide the sub array any further */
+        if (mid === low) {
+            if (high - low + 1 > k) {
+                mid++;
+            }  
+        }
+        
+        if (high - mid + 1 >= k) {
+            low = mid;
+        } else if (high - mid + 1 < k) {
+            k -= high - mid + 1;
+            high = mid - 1;
+        }
+        
+    }
+    
+    return _getSmallest(nums, low, high);
+}
+
+/* low to i have elements that are <= pivot */
+function partition(nums, low, high, pivot) {
+    var i, j, temp;
+    i = j = low;
+    while (j <= high) {
+        if (nums[j] < pivot) {
+            temp = nums[i];
+            nums[i] = nums[j];
+            nums[j] = temp;
+            i++;
+        }
+        
+        j++;
+    }
+
+    return i;
+}
+
+function _getSmallest(nums, low, high) {
+    var smallest = nums[low], i;
+    for (i=low; i <= high; i++) {
+        if (nums[i] < smallest) {
+            smallest = nums[i];
+        }
+    }
+    
+    return smallest;
+}
+
+analyze the partition function.
+case 1:
+3, 2, 1, 5, 6, 4
+
+choose the first value as the pivot value
+3, 2, 1, 5, 6, 4
+2, 1, 3, 5, 6, 4 
+         i       j
+i to j - 1 is the range where values are greater than the pivot value
+         
+choose the last value as the pivot value
+3, 2, 1, 5, 6, 4
+2, 1, 3, 5, 6, 4
+      i          j
+      
+case 2:      
+5, 2, 1, 3, 6, 4            
+choose the first value as the pivot value
+5, 2, 1, 3, 6, 4
+2, 1, 3, 4, 6, 5
+            i   j
+
+choose the last value as the pivot value      
+5, 2, 1, 3, 6, 4
+2, 1, 3, 5, 6, 4
+         i       j
+2, 1, 3, 4, 5, 6   need one last switch
+            i   j
+
+it seems placing the pivot value at the beginning of the array is cleaner.
+
+it is possible that the pivot value happens to be the smallest value in the sub array (assuming you are switching smaller values to the left); thus, unable to partition the sub array. in this case, after the partition, mid will be equal to low, so you need to "manually" move mid one position to the right if the length of the sub array is still larger than k (acutally it won't be smaller because you stop when the length is equal to k, and return the smallest element in the k-length sub array).
+
+in quick sort you won't have this problem because you always continue partioning the left sub array and the right sub array divided by the mid. if mid is equal to low after a partition routine, you simply ignore the empty left array. this problem is different since length of the right array matters when looking for the kth largest value, so you need to adjust the length of the right array by moving mid one step to the right when the partition is stuck on low but you haven't reached a k-length right sub array.

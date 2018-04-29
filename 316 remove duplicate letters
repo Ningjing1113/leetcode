@@ -1,0 +1,103 @@
+/*
+    316 remove duplicate letters
+    
+    Example:
+    Given "bcabc"
+    Return "abc"
+
+    Given "cbacdcbc"
+    Return "acdb"
+*/
+
+var removeDuplicateLetters = function(s) {
+    var hash = {}, i, _s = "", j = 0;
+    for (i = 0; i < s.length; i++) {
+        if (!hash.hasOwnProperty(s[i])) {
+            _s += s[i];
+            hash[s[i]] = j;
+            j++;
+        } else {
+            next = hash[s[i]] + 1;
+            if (next < _s.length && _s[next] < s[i]) {
+                _s[next] = " ";
+                _s += s[i];
+                hash[s[i]] = j;
+                j++;
+            }
+        }
+    }
+    
+    var s1 = "";
+    for (i = 0; i < _s.length; i++) {
+        if (_s[i] !== " ") {
+            s1 += _s[i];
+        }
+    }
+    
+    return s1;
+}
+
+var removeDuplicateLetters = function(s) {
+    var hash = {}, stack = [], i, _s, s1, firstSmaller = new Array[s.length];
+    _s = s;
+    for (i = 0; i < _s.length; i++) {
+        cur = _s[i];
+        top = stack[stack.length - 1];
+        if (!top) {
+            stack.push({index: i, val: cur});
+            continue;
+        }
+        
+        while (stack.length > 0 && cur < top) {
+            firstSmaller[top.index] = cur;
+            stack.pop();
+        }
+        
+        stack.push({index: i, val: cur});
+        
+    }
+    
+    while (stack.length > 0) {
+        top = stack.pop();
+        firstSmaller[top.index] = null;
+    }
+    
+    for (i = 0; i < _s.length; i++) {
+        cur = _s[i];
+        if (!hash.hasOwnProperty(cur)) {
+            hash[cur] = i;
+        } else {
+            index = hash[cur];
+            if (firstSmaller[index] < i) {
+                _s[index] = " ";
+                hash[cur] = i;
+            } else {
+                _s[i] = " ";
+            }
+        }
+    }
+    
+    for (i = 0; i < _s.length; i++) {
+        if (_s[i] !== " ") {
+            s1 += _s[i];
+        }
+    }
+    
+    return s1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

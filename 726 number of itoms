@@ -1,0 +1,328 @@
+/*
+    726 number of itoms
+    
+    H2O
+    Mg(OH)2
+    K4(ON(SO3)2)2
+*/
+
+/*
+    go through the string and keep a str variable to track the current substring, when you reaches the end of the current substring, merge it with whatever currently on the top of a string stack.
+    
+    a substring always starts with a letter, it may end by a left bracket or a right bracket
+    
+    keep a bracket stack to track the enclosing of substring, when you find a pair of bracket, push the current substring to the top of the stack. when this enclosed group ends (either with a number or a letter)
+    
+    when you have a number, if it's next to a closing bracket, the last substring enclosed by the bracket pair needs 
+    to be repeated this number of times and merge with the previous substring in string stack (if there is a previous one). you can use a boolean to track if your previous bracket pair is waiting for a number. this boolean is set to true whenever you see a closing bracket and false whenver you've found the next character or reaches the end of the whole string when it's true; if when the number ends there is no pending enclosed group, this number should be applied to the last letter of the current sub string.
+    
+    a number can end with anything (letter, opening or closing bracket), so you need to check for number ending for each character
+    
+    so basically you have 4 things to deal with, opening bracket, closing bracket, number and letters. The key is to determine when you've found a substring and making sure you are able to handle the nesting of different substrings. The bracket pairs provide you information to track the nesting of the substrings. By going through the string from left to right, you will find the most inner substring first and gradually discover the outter ones (think about an oinion). Stack is able to handle this kinda of nesting data because it allows you to cache what's currently not fully discovered and come back to it later when the inner nested stuff are taken care of. brackets are what you are looking for to determine how the structure is nested. opening bracket starts an enclosed group, closing bracket ends one. if you a in the middle of discovering a substring and you come to an opening bracket, you should put whatever you currently discovered onto a stack, start tracking the inner substring. when you come to the end of the inner substring (which may have other further nested substrings), you may merge this inner string with the previously cached partial substring, and this merged string itself may be another inner string that will be merged with the outter string when it's fully discovered.
+    
+    for this question, the first variation is the number that may follow a letter or an enclosed group. that's why you need a tag to tell you when a number is discovered, whether you have an enclosed group that needs to be repeated this number of times. if so, you take the substring that's currently on the top of the substring stack, repeat it and put it back to the stack. the stack will have only one string, which is the fully expanded original string.
+    
+    the second variation is you need to track how many atoms you have. you can use a hash and update it whenever you discover a substring (by coming to an ending bracket) or repeat a substring (by coming to a number following a enclosed group). remember to go through the entire expanded string onece at the end so you don't miss those characters that are not enclosed.
+    
+    stack is used to cache the data and delay the processing until it's the right time. for the nested data structure, the right time is when a enclosed string is fully discovered, if you don't have any bracket in the string, the string itself is one single layer enclosed string. You can start counting the atoms whenever you see them, but if they are nested, you would have to go back to revisit them once all its inner substrings are discovered (and processed). it's cleaner to wait till it's fully discovered then you can process it in one pass.
+    
+    another type of problems associated with nested data structure allows you to access the outter layer first (contrary to a string, which won't allow you to have the most outter layer until you've reached the end of the string), from there you can use either recursion or a stack to "peal" the data structure until you've reached the most inner layer. e.g. 341 flatten the nested list
+*/
+
+
+var countOfAtoms = function(formula) {
+    if (!formula || formula.length === 0) {
+        return "";
+    }
+    
+    var hash = {}, stack = [], i, cur, num = 0, sub = "";
+    formula += "(";
+    for (i = 0; i <= formula.length; i++) {
+        cur = formula[i];
+        if (isDigit(cur)) {
+            num = num * 10 + parseInt(cur, 10);  
+        } else if (isLetter(cur)) {
+            sub += cur;
+            
+            // there might be a number before this letter
+            // there might be substring or an enclosed group before the number
+            // e.g. OH2K (OH)2K
+            if (num > 0) {
+                repeat(sub, num, stack);
+                num = 0;
+            }
+        } else if (cur === "(") {
+            if (num > 0) {
+                if (sub) {
+                    for(j = 0; j < num - 1; j++) {
+                        sub += sub[sub.length - 1];
+                    }
+                    
+                    mergeSubstring(sub, stack);
+                    sub = "";
+                } else if (stack.length > 0) {
+                    // there is a group before the number, by now, the goup is on top of the stack
+                    top = stack[stack.length - 1];
+                    for (j = 0; j < num - 1; j++) {
+                        stack[stack.length - 1] += top;
+                    }
+                } 
+            } else {
+                if (sub) {
+                    mergeSubstring();
+                    sub = "";
+                }
+            }
+        } else {
+            // ")"
+            if (num) {
+                repeat(sub, num, stack);
+                num = 0;
+            } 
+            
+            if (sub) {
+                mergeSubstring(sub, stack);
+                sub = "";
+            }
+        }
+    }
+    
+    return calculateNumofAtoms(stack, hash);
+}
+
+function calculateNumofAtoms(stack, hash) {
+    var sub = stack[0];
+    for (i = 0; i < sub.length; i++) {
+        cur = sub[i];
+        if (!hash.hasOwnProperty(cur)) {
+            hash[cur] = 0;
+        }
+        
+        hash[cur]++;
+    }
+    
+    var keys = Object.keys(hash), result = "";
+    for (i = 0; i < keys.length; i++) {
+        result += keys[i];
+        result += hash[keys[i]];
+    }
+    
+    return result;
+}
+
+function repeat(num, sub, stack) {
+    if (num > 0) {
+        if (sub) {
+            top = sub[sub.length - 1];
+            for(j = 0; j < num - 1; j++) {
+                sub += top;
+            }    
+        } else {
+            top = stack[stack.length - 1];
+            if (top) {
+                for(j = 0; j < num - 1; j++) {
+                    stack[stack.length - 1] += top;
+                }
+            }
+        }
+    }
+}
+
+function mergeSubstring(sub, stack) {
+    var top = stack[stacl.length - 1];
+    if (!top) {
+        stack.push(sub);
+    } else {
+        top += sub;
+    }
+}
+
+/*
+    K4(ON(SO3)2)2
+*/
+/*
+    if you keep a hash table to track the number of each atom(in the form of a letter), you only have to deal with numbers and recursion (the nested formula), and recursion followed by numbers.
+    
+    a number can be followed by letter, opening parenthesis, closing parenthesis, so you need to check for number every step. when a number ends, whatever in front of it needs to be repeated. it could be a single letter or a nested formula in between a pair of parenthesis.
+    
+    notice that one nested formula might need to be repeated by two different numbers because the (xxx)2 can be inside of another layer of formula, so instead of starting calculating each itom once right after it's discovered, you can first expand the whole formula and do one pass to calculate the number of atoms. this way you only have keep track on one layer until it ended without worrying about whehter there is another layer outside.
+    
+    compare with the calculator problem:
+    a. you only need to look ahead one step to find what's need to be repeated when a number is found. in the calculator problem, you will have to do the collision process for all operators that have the same priority.
+    b. the recursion is done in a similar way. a recursion starts with opening parenthesis, ends with a closing one, and you need to track the number of steps to jump after the recursion.
+    c. you can think of letters or pair of parenthesis are operants and numbers are operators, the operation is to repeat the operant that number of times.
+*/
+
+var countOfAtoms = function(formula) {
+    var expanded = [], i, hash = {};
+    countAtomsRecursion(formula, 0, {val: 0}, expanded);
+    for (i = 0; i < expanded.length; i++) {
+        if (!hash.hasOwnProperty(expanded[i])) {
+            hash[expanded[i]]++;
+        }
+    }
+    
+    return hash;
+    
+};
+
+function countAtomsRecursion(formula, low, count){
+    var pre, i, cur, number = 0;
+    for (i = 0; i <= formula.length; i++) {
+        cur = formula[i];
+        if (/\d/.test(cur)) {
+            number = number * 10 + parseInt(cur);
+        } else if (cur === "(") {
+            if (number) {
+                repeatPreFormula(expanded, pre, number);
+                number = 0;
+            }
+            
+            var _preCount = count.val;
+            pre = countAtomsRecursion(formula, i + 1, count);
+            i += count.val;
+            count.val += _preCount;
+        } else if (cur === ")") {
+            return expanded;
+        } else {
+            if (number) {
+                repeatPreFormula(expanded, pre, number);
+                number = 0;
+            }
+        }
+    }
+}
+
+/*
+    version that's able to handle one nested layer
+*/
+
+var countOfAtoms = function(formula) {
+    var expanded = [], i, hash = {};
+    countAtomsRecursion(formula, 0, {val: 0}, expanded);
+    for (i = 0; i < expanded.length; i++) {
+        if (!hash.hasOwnProperty(expanded[i])) {
+            hash[expanded[i]] = 0;
+        }
+        
+        hash[expanded[i]]++;
+    }
+    
+    var keys = Object.keys(hash), str = "";
+    for (i = 0; i < keys.length; i++) {
+        str += keys[i] + (hash[keys[i]] > 1 ? hash[keys[i]] : "");
+    }
+    
+    return str;
+    
+};
+
+function countAtomsRecursion(formula, low, count, expanded){
+    var pre = "", i, cur, number = 0;
+    for (i = low; i <= formula.length; i++) {
+        if (i === formula.length) {
+            endFormula(expanded, pre, number);
+            return;
+        }
+        
+        cur = formula[i];
+        if (/\d/.test(cur)) {
+            number = number * 10 + parseInt(cur);
+        } else if (cur === "(") {
+            if (number) {
+                repeatPreFormula(expanded, pre, number);
+                number = 0;
+            } else {
+                addPreFormula(expanded, pre);
+            }
+            
+            var _preCount = count.val, _expanded = [];
+            count.val = 0;
+            countAtomsRecursion(formula, i + 1, count, _expanded);
+            pre = getString(_expanded);
+            i += count.val;
+            count.val += _preCount;
+            console.log("after recursion: ");
+            console.log(pre);
+        } else if (cur === ")") {
+            endFormula(expanded, pre, number);
+            return;
+        } else {
+            // cur is a letter
+            if (number) {
+                repeatPreFormula(expanded, pre, number);
+                number = 0;
+                pre = "";
+            } 
+            
+            pre += cur;
+        }
+    }
+}
+
+function printDebugInfo(expanded, pre, number) {
+    console.log(pre);
+    console.log(number);
+    console.log(expanded);
+    console.log("--------");
+}
+
+function repeatPreFormula(expanded, pre, number) {
+    var i;
+    number ? number : 1;
+    for (i = 0; i < number; i++) {
+        addPreFormula(expanded, pre);
+    }
+    
+    return;
+}
+
+function addPreFormula(expanded, pre) {
+    var j;
+    for (j = 0; j < pre.length; j++) {
+        expanded.push(pre[j]);
+    }
+    
+    return;
+}
+
+function endFormula(expanded, pre, number) {
+    printDebugInfo(expanded, pre, number);
+    if (number) {
+        repeatPreFormula(expanded, pre, number);
+    } else {
+        addPreFormula(expanded, pre);
+    }
+    
+    return;
+}
+
+function getString(expanded) {
+    var i, str = "";
+    for (i = 0; i < expanded.length; i++) {
+        str += expanded[i];
+    }
+    
+    return str;
+}
+
+
+/*
+    Bugs and issues compared with the previous version:
+    1. return value of the recursion function. whether it returns a value, or you will pass in a variable as reference to track the value. the bugs was expanded array of the upper layer is passed down to the nested layer but it expects it to return a string value. the right way is to pass in a empty array _expanded to the recursion function, converted this array into a string when the recursion returns and use this string as the current pre value (which may be repeated if there is following number).
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

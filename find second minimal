@@ -1,0 +1,114 @@
+var findSecondMinimumValue = function(root) {
+            if (!root || !root.left && !root.right ) {
+                return -1;
+            }
+
+            let secondMin = {val: root.val};
+            recursion(root, secondMin);
+
+            if (root.val === secondMin.val) {
+                let maxChildVal = Math.max(root.left.val, root.right.val);
+                return  maxChildVal > root.val ? maxChildVal : -1;
+            } else {
+                return secondMin.val;
+            }
+
+        };
+
+        function recursion(root, secondMin) {
+            if (!root.left && !root.right) {
+                secondMin.val = root.val;
+                return;
+            }
+
+            let leftSecondMin = root.left.val, rightSecondMin = root.right.val;
+            if(root.left.val === root.right.val){
+                recursion(root.left, secondMin);
+                leftSecondMin = secondMin.val;
+                recursion(root.right, secondMin);
+                rightSecondMin = secondMin.val;
+            } else {
+                let goLeft = root.left.val < root.right.val ? true : false;
+                if (goLeft) {
+                    recursion(root.left, secondMin);
+                    leftSecondMin = secondMin.val;    
+                } else {
+                    recursion(root.right, secondMin);
+                    rightSecondMin = secondMin.val;
+                }
+            }
+
+            secondMin.val = Math.min(leftSecondMin, rightSecondMin);
+            if (root.val === secondMin.val) {
+                secondMin.val = Math.max(leftSecondMin, rightSecondMin);
+            } 
+        }
+      
+      function createTree(nums) {
+          var queue = [], root, pre, cur, node;
+          node = {
+              val: nums.shift(),
+              left: undefined,
+              right: undefined,
+          };
+          
+          root = node;
+          pre = root;
+          while (nums.length > 0) {
+              cur = nums.shift();
+              if (!cur) {
+                  node = null;
+              } else {
+                  node = {
+                      val: cur,
+                      left: undefined,
+                      right: undefined
+                  };
+              }
+              
+              if (node) {
+                  queue.push(node);
+              }
+              
+              if (pre.left === undefined) {
+                  pre.left = node;
+              } else if (pre.right === undefined) {
+                  pre.right = node;
+                  pre = queue.shift();
+              } 
+          }
+          
+          return root;
+      }
+      
+      function printTree(root) {
+          
+      }
+      
+      var //tree = createTree([1,1,3,1,1,3,4,3,1,1,1,3,8,4,8,3,3,1,6,2,1]),
+          //tree = createTree([2, 2, 2]),
+          tree = createTree([2, 2, 5, null, null, 5, 7]);
+      
+      console.log(findSecondMinimumValue(tree));
+      
+      /*
+        top down approach
+        var findSecondMinimumValue = function(root) {
+        const min = root.val;
+        let secondMin = Number.POSITIVE_INFINITY;
+        function traverse (node) {
+            if (!node) {
+                return;
+            }
+            const {right, left, val} = node;
+            if (val > min && val < secondMin) {
+                secondMin = val;
+            }
+            traverse(right);
+            traverse(left);
+        }
+        traverse(root);
+        return isFinite(secondMin) ? secondMin : -1;
+};
+      */
+        

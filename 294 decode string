@@ -1,0 +1,39 @@
+/*
+    accepted 89ms
+    394 decode string
+*/
+
+var decodeString = function(s) {
+    if (!s || s.length === 0) {
+        return "";
+    }
+    
+    var nums = [], num = 0, str = "", bracket = [];
+    for (i = 0; i < s.length; i++) {
+        if (/\d/.test(s[i])) {
+            num = num * 10 + parseInt(s[i], 10);
+        } else if (s[i] === "[") {
+            nums.push(num);
+            num = 0;
+            
+            str += s[i];
+            bracket.push(str.length - 1);
+            
+        } else if (s[i] === "]") {
+            var sub = "", repeated = "", openIndex = bracket.pop();
+            sub = str.substring(openIndex + 1);
+            num = nums.pop();
+            for (j = 0; j < num; j++) {
+                repeated += sub;    
+            }
+            
+            num = 0;
+            str = str.substring(0, openIndex) + repeated;
+            //console.log(str);
+        } else {
+            str += s[i];
+        }
+    }
+    
+    return str; 
+};

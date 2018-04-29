@@ -1,0 +1,91 @@
+/*
+    490 the maze
+*/
+
+/*
+    there are at most four possible directions, you can put each possible direction in a stack for further exploration. if you choose to start with the left direction and go clockwise, you will go left as far as possible and then up, etc. if you hit a wall, you need to take the previous step back and explore the next possible directio from the previous step.
+    
+    dfs search can be done using a stack that tracks the possible directions and another stack that tracks the path. you can put the start point in the explore stack and start exploring. each time a cell is popped out of the stack, it should go into the top of the path stack, this cell is where you currently at. Then you can check if this spot is your destination. if it's not, you can explore other possible directions from this spot and put them on stack. here you need to make sure that you don't put the previous cell of your current cell into the explore stack, otherwise you will have a cycle. 
+    
+    each cell has 3 status, nonvisited, discovered, visited. nonvisited cells are those that you never reach or haven't reached yet, discovered are those that you reached at least once but still exploring other cells that are reachable from them, visited are those that you have explored all cells reachable from them.
+    
+    when you reach a cell that has no further directions to explore and it's not your destination, you need to step back to a cell that has the next possible direction by removing cells from your path stack. so you remove the last cell from your path, mark it as visited (because there is no more cell you can reach further from this cell, it's fully visited) and check if the previous one on the path has other cells that are nonvisited. if so, you can put these nonvisited cells on stack and continue. however when you step back, you will have recheck some cells you've previsously visited. To avoid rechecking, you can use recursion function to run the DFS instead of maintaining a stack yourself. the structure of the code will look like backtracking. The "stepping back" can be easily handled by a backtracking algorithm.
+    
+    
+*/
+
+var hasPath = function(maze, start, destination) {
+    var data = {canStop: false, maxRow = maze.length - 1, maxCol = maze[0].length - 1, direction:"l"}, cur, dest;
+    cur = {row: start[0], col: start[1]};
+    dest = {row: destination[0], col: destination[1]};
+    backtrack(maze, cur, dest, data);
+    
+    return data.canStop;
+}
+
+function backtrack(maze, cur, dest, data) {
+    if (data.direction === "l") {
+        if (data.col - 1 >= 0 && maze[cur.row][cur.col] === 0) {
+            // go left
+            cur.col--;
+            backtrack(maze, cur, dest, data);
+            if (data.canStop) {
+                return;
+            }
+        } else {
+            if (cur.row === dest.row && cur.col === dest.col) {
+                data.canStop = true;
+                return;
+            }
+        }
+    } else if (data.direction === "d") {
+        if (cur.row + 1 <= maxRow && maze[cur.row + 1][cur.col] === 0) {
+            // go down
+            cur.row++;
+            backtrack(maze, cur, dest, data);
+            if (data.canStop) {
+                return;
+            }
+        } else {
+            if (cur.row === dest.row && cur.col === dest.col) {
+                data.canStop = true;
+                return;
+            }
+        }
+    } else if (data.direction === "r") {
+    
+    } else {
+        // up
+    }
+    
+    
+    if (data.direction !== "d" && cur.row + 1 <= data.maxRow && maze[cur.row + 1][cur.col] === 0) {
+        cur.row++;
+        data.direction = "d";
+        backtrack(maze, cur, dest, data);  
+        if (data.canStop) {
+            return;
+        }
+    } else if () {
+        // go right
+        if (cur.col + 1 <= data.maxCol && maze[cur.row][cur.col + 1] === 0) {
+            cur.col++;
+            data.direction = "r";
+            backtrack(maze, cur, dest, data);  
+            if (data.canStop) {
+                return;
+            }
+        }
+    } else if () {
+        if (cur.row - 1 >= 0 && maze[cur.row - 1][cur.col] === 0) {
+            cur.row--;
+            data.direction = "u";
+            backtrack(maze, cur, dest, data);  
+            if (data.canStop) {
+                return;
+            }
+        }
+    } else {
+        // go left
+    }
+}

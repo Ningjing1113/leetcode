@@ -1,0 +1,32 @@
+var depthSumInverse = function(nestedList) {
+    
+            var hash = {}, depth = {val: 0}, sum = 0;
+            [].forEach.call(nestedList, (integer) => {
+                depthSumRecurse(integer, hash, depth);
+            });
+
+            let keys = Object.keys(hash);
+            keys.forEach(key => {
+                sum += (keys.length - parseInt(key)) * hash[key];
+            });
+
+            return sum;
+        };
+
+        function depthSumRecurse(integer, hash, depth) {
+            if (integer.isInteger()) {
+                if (!hash.hasOwnProperty(depth.val)) {
+                    hash[depth.val] = 0;
+                }
+
+                hash[depth] += integer.getInteger();
+            } else {
+                depth.val++;
+                let list = integer.getList();
+                [].forEach.call(list, (_integer) => {
+                    depthSumRecurse(_integer, hash, depth);  
+                });
+
+                depth.val--;
+            }
+        }

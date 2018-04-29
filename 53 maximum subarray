@@ -1,0 +1,54 @@
+/*
+    accepted 65ms 98%
+    53 maximum sub array
+*/
+
+var maxSubArray = function(nums) {
+    if (!nums || nums.length === 0) {
+        return -2147483648;
+    }
+    
+    var max = {val: -Infinity}, sum = 0, i;
+    i = findFirstPositive(nums, 0, max);
+    if (i === nums.length) {
+        return max.val;
+    }
+    
+    while (i < nums.length) {
+        sum += nums[i];
+        if (sum <= 0) {
+            sum = 0;
+            i = findFirstPositive(nums, i+1, max);
+        } else {
+            i++;
+            if ( sum > max.val ) {
+                max.val = sum;
+            }
+        }
+    }
+    
+    return max.val;
+};
+
+function findFirstPositive(nums, i, max) {
+    while (i < nums.length) {
+        if (nums[i] > max.val) {
+            max.val = nums[i];
+        }
+        
+        if (nums[i] > 0) {
+            break;
+        }
+        
+        i++;
+    }
+    
+    return i;
+}
+
+/*
+
+    if you are going to advance index more than one step in a while loop, be careful that the position of your next step, with or without leaping forward, shoul be consistent among all conditions.
+    
+    in the above example, if you want i to point to the first positive when the sum drop to or below 0; to the next position when sum is still above 0. since you are advancing in different ways in different cases, they need to be kept separately. if you leave i++ at the end of the while loop, it will break the leaping forward case unless you decreasing i by 1 which is not clean.
+*/

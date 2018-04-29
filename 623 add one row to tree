@@ -1,0 +1,63 @@
+/*
+    623 Add one row to tree
+    accepted 138ms 100%
+*/
+/*
+    layer by layer traverse 
+*/
+var addOneRow = function(root, v, d) {
+    if (d === 1) {
+        var _root = new TreeNode(v);
+        _root.val = v;
+        _root.left = root;
+        _root.right = null;
+        return _root;
+    }
+    
+    var queue = [], cur, left, right;
+    root.level = 1;
+    queue.push(root);
+    
+    while (queue.length > 0) {
+        cur = queue.shift();
+        if (cur.level === d - 1) {
+            left = cur.left;
+            right = cur.right;
+            
+            cur.left = new TreeNode(v);
+            cur.right = new TreeNode(v);
+            
+            cur.left.left = left;
+            cur.left.right = null;
+            
+            cur.right.left = null;
+            cur.right.right = right;
+            
+        } else {
+            if (cur.left) {
+                cur.left.level = cur.level + 1;
+                queue.push(cur.left);
+            }
+
+            if (cur.right) {
+                cur.right.level = cur.level + 1;
+                queue.push(cur.right);
+            }
+        }
+        
+        delete cur.level;
+    }
+    
+    return root;
+};
+/*
+    1. check the cases when:
+    there is only one node, every node only has left/right node
+*/
+
+/*
+    Bug:
+    1. time limit exceeded because the logic of attaching nodes after the inserted layer is wrong.
+    2. adding the node as the new root should be taken care of.
+    3. the provided TreeNode function should be used to initialize a new node.
+*/

@@ -1,0 +1,146 @@
+var shortestWordDistance = function(words, word1, word2) {
+    var hash = {};
+    words.forEach((word, i) => {
+        if (!hash.hasOwnProperty(word)) {
+            hash[word] = [];
+        }
+
+        hash[word].push(i);
+    });
+    
+    // i: 1 6 
+    // j: 2 3 4
+    // 1 2 3 4 6
+    let arr1 = hash[word1], arr2 = hash[word2];
+    console.log(arr1);
+    console.log(arr2);
+    let i = j = 0, pre, cur, diff, minDiff = Infinity;
+    while (i < arr1.length && j < arr2.length) {
+        if (arr1[i] < arr2[j]) {
+            
+            if (pre && !pre.isI) {
+                minDiff = updateMinDiff(arr2[pre.index], arr1[i], minDiff);
+            }
+            
+            pre = {isI: true, index: i};
+            i++;
+        } else {
+            if (pre && pre.isI) {
+                minDiff = updateMinDiff(arr2[j], arr1[pre.index], minDiff);
+            }
+            
+            pre = {isI: false, index: j};
+            j++;
+        }
+    }
+        
+    if (i === arr1.length) {
+        minDiff = updateMinDiff(arr2[j], arr1[pre.index], minDiff);
+    } else {
+        minDiff = updateMinDiff(arr2[pre.index], arr1[i], minDiff);   
+    }
+    
+    return minDiff;
+};
+      
+      function updateMinDiff(diff1, diff2, minDiff) {
+            let diff = Math.abs(diff1 - diff2);
+            if (diff < minDiff) {
+                minDiff = diff;
+            }
+            
+            return minDiff;
+      }
+      
+      console.log(shortestWordDistance(["a", "b"], "a", "b"));
+    
+    /*
+        this algorithm was the fastest solution by far, however, it's calculating the diff for each match, which is unecessary, you only need to calculate the diff when the pointer you move forward flips
+    */  
+    var shortestWordDistance = function(words, word1, word2) {
+    var distance1 = -1;
+    var distance2 = -1;
+    var same = word1 === word2? true: false;
+    const repeatword = {}
+    var minDistance = words.length;
+
+    for(var i = 0; i < words.length; i++) {
+      if(words[i] === word1) {
+         if (same) {
+                distance1 = distance2;
+                distance2 = i;
+            } else {
+                distance1 = i;
+            }
+      }
+      
+      if(words[i] === word2)
+          distance2 = i;
+      
+      if (distance1 !== -1 && distance2 !== -1) {
+            minDistance = Math.min(minDistance, Math.abs(distance1 - distance2));
+        }
+    }  
+    return minDistance;
+};
+      
+      /*
+      
+            accepted 60ms 100%
+            the following solution is inspired by the above solution with improvements on not calculating the diff on each match
+      */
+      
+      var shortestWordDistance = function(words, word1, word2) {
+        let i = j = 0, pre, cur, diff = Infinity;
+        if (word1 === word2) {
+            return minEqualWordDistance(words, word1);
+        }
+
+        for (k = 0; k < words.length; k++) {
+            if (words[k] === word1) {
+                i = k;
+                if (pre && !pre.isi) {
+                    diff = Math.min(Math.abs(pre.index - i), diff);
+                }
+
+                pre = {
+                    isi: true,
+                    index: i
+                };
+            } else if (words[k] === word2) {
+                j = k;
+                if (pre && pre.isi) {
+                    diff = Math.min(Math.abs(pre.index - j), diff);
+                }
+
+                pre = {
+                    isi: false,
+                    index: j
+                };
+            }
+        }
+
+        return diff;
+    };
+
+    function minEqualWordDistance(words, word1) {
+        var pre, cur, diff = Infinity;
+        for (let i = 0; i < words.length; i++) {
+            if (words[i] === word1) {
+                cur = i;
+                if (pre >= 0) {
+                    diff = Math.min(diff, cur - pre);
+                }
+
+                pre = i;
+            }
+        }
+
+        return diff;
+    }
+      
+    /*
+        the lessons here are:
+        1. if  you don't need a hash, don't use it, save some memory
+        2. thinking about the plant flower problem, if you can handle it in a while loop, you don't need a recursion
+    */

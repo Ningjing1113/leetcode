@@ -1,0 +1,53 @@
+/*
+    385 mini parser
+    
+    [123,[456,[789]]]
+*/
+
+/*
+    Analysis: 
+    this is nested data structure given as a string. your task is to create this nested data structure by parsing the string.
+    
+    by going through the string from left to right while using a stack to cache data that is not ready to be processed, you will reach the most inner layer of the nested data.
+    
+    you need to keep a variable to track your current visiting layer, if you see a closing bracket of the current layer, you can close this layer and merge it with the previous layer, which is whatever on the top of your stack; then start discovering the next layer.
+    
+    [ starts a layer, "," closes a number, "]" closes a layer. the basic structure of the code will be a for look and varies if else conditions in there to handle different characters.
+*/
+
+var deserialize = function(s) {
+    var stack = [], num = 0, curStack = [], i, cur;
+    for (i = 0; i < s.length; i++) {
+        cur = s[i];
+        if (isDigit(cur)) {
+            num = num * 10 + parseInt(cur, 10);
+        } else if (cur === ",") {
+            curStack.push(num);
+            num = null;
+        } else if (cur === ']') {
+            if (num !== null) {
+                curStack.push(num);
+                num = null;
+            }
+            
+            top = stack[stack.length - 1];
+            if (!top) {
+                stack.push(curStack);
+            } else {
+                top = stack.pop();
+                top.push(curStack);
+                stack.push(top);
+            }
+            
+            curStack = [];
+        } else {
+            // "["
+            if (curStack.length > 0) {
+                stack.push(curStack);
+                curStack = [];
+            }
+        }
+    }
+    
+    
+}

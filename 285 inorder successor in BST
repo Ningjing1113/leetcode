@@ -1,0 +1,83 @@
+/*
+    285 Inorder successor in BST
+*/
+
+/*
+    accepted 125ms
+    using recursion
+*/
+var inorderSuccessor = function(root, p) {
+    var data = {p: p, found: false, successor: null};
+    if (!root || !p) {
+        return null;
+    } else if (root === p) {
+        return root.right;
+    }
+    
+    _recurse(root, data);
+    
+}
+
+function _recurse(root, data) {
+    if (!root) {
+        return;
+    }
+    
+    _recurse(root.left, data);
+    if (data.successor) {
+        return;
+    }
+    
+    if (root === data.p) {
+        data.found = true;
+    } else if (data.found) {
+        data.successor = root;
+        return;
+    }
+    
+    _recurse(root.right, data);
+}
+
+/*
+    using stack without recursion
+*/
+
+var inorderSuccessor = function(root, p) {
+    if (!root || !p) {
+        return null;
+    } 
+    
+    var stack = [], pre, cur, found = false;
+    stack.push(root);
+    while (stack.length > 0) {
+        cur = stack[stack.length - 1];
+        
+        if (cur === p) {
+            found = true;
+            stack.pop();
+            if (cur.right) {
+                stack.push(cur.right);
+            }
+        } else {
+            if (!cur.visited && cur.left) {
+                stack.push(cur.left);
+                cur.visited = true;
+            } else {
+                delete cur.visited;
+                stack.pop();
+                if (cur === p) {
+                    found = true;
+                } else if (found) {
+                    return cur;
+                }
+                
+                if (cur.right) {
+                    stack.push(cur.right);
+                }
+            }   
+        }
+    }
+    
+    return null;
+    
+};

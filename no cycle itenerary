@@ -1,0 +1,53 @@
+# Airline flight ordering problem
+# in: [('jfk','mia'), ('mia','oak'), ('sjc','jfk')]
+# out: [('sjc','jfk'), ('jfk','mia'), ('mia','oak')]
+/*
+[['jfk', 'mia']]
+
+hash:
+----------------
+jfk - {dest: mia, isDest: true}
+mia - {dest: oak, isDest: true}
+oak = {dest: "", isDest: true}
+sjc - {dest: jfk, isDest: false}
+
+*/
+
+function findRoute(tickets) {
+    var hash = {}, i;
+    for (i = 0; i < tickets.length; i++) {
+        let start = tickets[i][0], // jfk 
+        dest = tickets[i][1];       // mia
+        if (!hash.hasOwnProperty(start)) {
+            hash[start] = {dest: dest, isDest: false};
+        } else {
+            hash[start].dest = dest;
+        }
+        
+        if (!hash.hasOwnProerty(dest)) {
+            hash[dest] = {dest: "", isDest: true}
+        } else {
+            hash[dest].isDest = true;
+        }
+    }
+    
+    var keys = Object.keys(hash), start = "", route = [];
+    keys.forEach(key => {
+        if (!hash[key].isDest) {
+            start = key;
+        }
+    });
+    
+    DFS(hash, start, route);
+    return route;
+}
+
+function DFS(hash, start, route) {
+    if (hash[start].dest === "") {
+        return;
+    }
+    
+    let dest = hash[start].dest;
+    route.push([start, dest]);// [[sjc, jfk], [jfk, mia], [mia, oak]] 
+    DFS(hash, dest, route);
+}

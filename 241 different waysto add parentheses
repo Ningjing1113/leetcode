@@ -1,0 +1,53 @@
+/*
+    accepted 92ms
+    241 different ways of parentheses
+*/
+
+/*
+    2 * 3 - 4 * 15
+*/
+
+var diffWaysToCompute = function(input) {
+    var hash = {};
+    return compute(0, input.length - 1, input, hash);
+};
+
+function compute(low, high, input, hash) {
+    var key = input.substring(low, high + 1);
+    if (!hash.hasOwnProperty(key)) {
+        
+        var i, result = [], left = [], right = [], isNumber = true;
+        for (i = 0; i < input.length - 1; i++) {
+            if (isOperator(input[i])) {
+                isNumber = false;
+                left = compute(0, i - 1, input, hash);
+                right = compute(i, input.length - 1, input, hash);
+                for (j = 0; j < left.length; j++) {
+                    for (k = 0; k < right.length; k++) {
+                        result.push(calculate(left[j], input[i], right[k]));
+                    }
+                }
+            }
+        }
+        
+        
+        if (isNumber) {
+            result = parseInt(key, 10);
+        }
+        
+        hash[key] = result;
+    }
+    
+    console.log(key + " = " hash[key]);
+    return hash[key];
+}
+
+function calculate(left, op, right) {
+    if (op === "+") {
+        return left + right;
+    } else if (op === "-") {
+        return left - right;
+    } else {
+        return left * right;
+    }
+};

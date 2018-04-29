@@ -1,0 +1,53 @@
+/*
+    301 remove invalid parenthesis
+*/
+
+var removeInvalidParentheses = function(s) {
+        let i = 0, j = 0, opening = 0, closing = 0, validS = "";
+        while (j < s.length) {
+            let cur = s[j];
+            if (cur !== '(' && cur !== ')') {
+                j++;
+                continue;
+            } else if (cur === '(') {
+                opening++;
+            } else {
+                closing++;
+            }
+
+            if (closing > opening) {
+                validS += s.substring(i, j);
+                closing--;
+                i = j + 1;
+                j = i;
+            } else {
+                j++;
+            }
+        }
+
+        validS += s.substring(i, j);
+        if (opening === closing) {
+            return validS;  
+        }
+
+        let diff = opening - closing;
+        i = s.length - 1;
+        j = i;
+        while (diff > 0) {
+            if (validS[j] !== '(') {
+                j--;
+                continue;
+            }
+
+            diff--;
+            validS = validS.substring(0, j) + (i - j > 0 ? validS.substring(j+1, i+1) : '');
+            j--;
+            i--;
+        }
+
+        return validS;
+    };
+
+//console.log(removeInvalidParentheses("()())()"));
+      
+      console.log(removeInvalidParentheses("()()((()"));

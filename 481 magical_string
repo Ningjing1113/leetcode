@@ -1,0 +1,43 @@
+// 481 magical string
+
+// 1 22
+
+function magicalString(n) {
+    // base case is 1 22
+    if (n <= 3) return 1;
+    
+    var counter, cur = 2, i = 2, _n = 3, counter = 1, s = [1, 2, 2];
+    
+    while (_n < n) {
+        // which number? 1 or 2
+        if (cur === 1) {
+            cur = 2;
+        } else {
+            cur = 1;
+        }
+        
+        // how many? 1 or 2
+        _n += s[i];
+        if (cur === 1) {
+            counter += s[i];
+        }
+        
+        // update the s window
+        s.push(cur);
+        s.unshift();
+        
+        if (s[i] > 1) {
+            s.push(cur);
+            s.unshift();
+        }
+        
+        i++;
+    }
+    
+    // one more is counted in this case
+    if (_n > n && cur === 1) {
+        return counter - 1;
+    } 
+    
+    return counter;
+}

@@ -1,0 +1,30 @@
+/*
+    494 target sum
+*/
+
+var findTargetSumWays = function(num, S) {
+    var solution = [], allSolutions = [], sum = 0, index = 0;
+    backtrack(num, solution, allSolutions, S, sum, index);
+    return allSolutions;
+}
+
+function backtrack(num, solution, allSolutions, S, sum, index) {
+    if (index === num.length) {
+        if (sum === S) {
+            allSolutions.add(copySolution(solution));
+        }
+        
+        return;
+    } 
+    
+    // try + and - with the number at the current index
+    sum += num[index];
+    solution.push("+" + num[index])
+    backtrack(num, solution, allSolutions, S, sum, index + 1);
+    
+    sum -= 2 * num[index];
+    solution.push("-" + num[index]);
+    backtrack(num, solution, allSolutions, S, sum, index + 1);
+    
+    sum += num[index];
+}

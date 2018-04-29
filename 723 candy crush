@@ -1,0 +1,423 @@
+/*
+    723 candy crush
+*/
+
+/*
+    you can go through each column once and mark those candy that can be burst using 0, do the same for each row. then go through the grid one more time only on each column, and drop other candies to fill up the 0 cells.
+    
+    in the first pass, start looking at each column from bottom up and keep two pointers i and j. stop i and keep increasing j when i and j points at the same value (you start j one step ahead of i of course). when j is not equal to i, you can calculate how many candy in between i and j, if the number > 2, from i to j-1 all needs to be marked 0, then you can move i to j, j++ until j hits the -1 (since we are going through the column from bottom up).
+    
+    in the second pass, you still start looking through each column from bottom up, but this time, you are interested in 0. set up a point i whenever you see a 0, then keep increasing j from i until it's not zero. now whatever above j inclusing j should be dropped j - i steps. however notice that you might have another group of 0 above j. think about the following example:
+    2
+    3
+    0
+    0
+    0   k
+    1
+    5   j
+    0   
+    0
+    0   i
+    2
+
+    if you want to move every candy only once and make sure they are at the right spot, you would need another pointer k to loop up from j until it reaches the first 0 (of course k will become -1 if there is no more 0 above your current j). then from j to k - 1 needs to be dropped j - i steps. then your i starts from k. notice that for each group of 0, you repeat the same logic to drop the remaining candy, so you can wrap this into a function and call it recursively. after you've dropped all remaining candy, you need to fill up the empty cells with 0. if you've been tracking how many 0 you've had on each column, you would know how many 0 you need to fill up from the top.
+    
+    notice that you have to go through the grid once and mark all the candy you can burst without bursting them, otherwise, it will change your current state and you won't be able to calculate the rest of the grid correctly.
+*/
+
+var candyCrush = function(board) {
+    var maxRow = board.length, maxCol = board[0] && board[0].length, i, j, k, r, c;
+    for (c = 0; c < maxCol; c++) {
+         i = maxRow - 1;
+         j = i + 1;
+         while ( j >= 0 ){
+            if (board[j][c] !== board[i][c]) {
+                if (j - i > 2) {
+                    for (k = i; k < j; k++) {
+                        board[k][c] = 0;
+                    }
+                }
+                
+                i = j;
+            } 
+            
+            j++;
+         }
+         
+         if (i > 0) {
+            for (k = i; k >=0; k--) {
+                board[k][c] = 0;
+            }
+         }
+    }
+    
+    console.log(board);
+    for (r = 0; r < maxRow; r++ ){
+        i = 0;
+        j = i + 1;
+        while (j < maxCol) {
+            if (board[r][j] !== board[r][i]) {
+                if (j - i > 2) {
+                    for (k = i; k < j; k++) {
+                        board[r][k] = 0;
+                    }
+                }
+                
+                i = j;
+            }
+            
+            j++;
+        }
+        
+        if (i < maxCol - 1) {
+            for (k = i; k < maxCol; k++) {
+                board[r][k] = 0;
+            } 
+        }
+    }
+    
+    console.log(board);
+    for (c = 0; c < maxCol; c++) {
+        i = maxRow - 1;
+        while (i >= 0) {
+            while (i >= 0 && board[i][c] !== 0){
+                i--;
+            }
+
+            if ( i < 0) {
+                continue;
+            }
+
+            j = i;
+            while (j >=0 && board[j][c] === 0) {
+                j--;
+            }
+
+            if (j < 0) {
+                k = j;
+            } else {
+                while (k >= 0 && board[k][c] !== 0) {
+                    k--;
+                }
+            }
+
+            dropCandy(board, c, i, j, k);
+            i += k - j - 1;
+        }  
+    }
+}
+
+function dropCandy(board, c, i, j, k) {
+    if (j < 0) {
+        return;
+    }
+    
+    for (r = j; r > k; r--) {
+        board[i][c] = board[r][c];
+        board[r][c] = 0;
+        i--;
+    }
+}
+
+/*
+    reconstruct the structure of the code
+*/
+
+/**
+ * @param {number[][]} board
+ * @return {number[][]}
+ */
+var candyCrush = function(board) {
+    var maxRow = board.length, maxCol = board[0] && board[0].length, crush = {val: false};
+    board.maxRow = maxRow;
+    board.maxCol = maxCol;
+    crushCandy(board, crush);
+    console.log(board);
+    /*
+    while (crush.val) {
+        dropCandy(board);
+        crush.val = false;
+        crushCandy(board, crush);
+    }
+    */
+}
+
+function dropCandy(board) {
+    var maxRow = board.maxRow, maxCol = board.maxCol, i, j, k, r, c;
+    for (c = 0; c < maxCol; c++) {
+        i = maxRow - 1;
+        while (i >= 0) {
+            while (i >= 0 && board[i][c] !== 0){
+                i--;
+            }
+
+            if ( i < 0) {
+                continue;
+            }
+
+            j = i;
+            while (j >=0 && board[j][c] === 0) {
+                j--;
+            }
+
+            if (j < 0) {
+                k = j;
+            } else {
+                while (k >= 0 && board[k][c] !== 0) {
+                    k--;
+                }
+            }
+
+            dropCandySingleColumn(board, c, i, j, k);
+            i += k - j - 1;
+        }  
+    }
+}
+
+function crushCandy(board, crush) {
+    var maxRow = board.maxRow, maxCol = board.maxCol, i, j, k, r, c;
+    for (c = 0; c < maxCol; c++) {
+         i = maxRow - 1;
+         j = i + 1;
+         while ( j >= 0 ){
+            if (board[j][c] !== board[i][c]) {
+                /* 
+                see if we need to crush. j is pointing at the first element that is not equal to i so there are j - i candy of the same type starting from i to j - 1
+                */
+                if (j - i > 2) {
+                    if (!crush.val) {
+                        crush.val = true;
+                    }
+                    
+                    for (k = i; k < j; k++) {
+                        board[k][c] = 0;
+                    }
+                }
+                
+                i = j;
+            } 
+            
+            j++;
+         }
+         
+        /*
+            if you have i to 0 of the same type of candy, then when j went over the top, i will below 0, if i's position > 1, you have at least 3 candy of the same type on the top of the current column.
+        */
+         if (i > 1) {
+                for (k = i; k >=0; k--) {
+                    board[k][c] = 0;
+                }
+             }
+        }
+
+        console.log(board);
+        for (r = 0; r < maxRow; r++ ){
+            i = 0;
+            j = i + 1;
+            while (j < maxCol) {
+                if (board[r][j] !== board[r][i]) {
+                    if (j - i > 2) {
+                        for (k = i; k < j; k++) {
+                            board[r][k] = 0;
+                        }
+                    }
+
+                    i = j;
+                }
+
+                j++;
+            }
+
+            if (i < maxCol - 2) {
+                for (k = i; k < maxCol; k++) {
+                    board[r][k] = 0;
+                } 
+            }
+        }
+}
+
+function dropCandySingleColumn(board, c, i, j, k) {
+    if (j < 0) {
+        return;
+    }
+    
+    for (r = j; r > k; r--) {
+        board[i][c] = board[r][c];
+        board[r][c] = 0;
+        i--;
+    }
+}
+
+var candyCrush = function(board) {
+    var maxRow = board.length, maxCol = board[0] && board[0].length, crush = {val: false};
+    board.maxRow = maxRow;
+    board.maxCol = maxCol;
+    crushCandy(board, crush);
+    while (crush.val) {
+        crush.val = false;
+        dropCandy(board);
+        crushCandy(board, crush);
+    }
+}
+
+function crushCandy(board, crush) {
+    var maxRow = board.maxRow, maxCol = board.maxCol, i, j, k, r, c;
+    for (c = 0; c < maxCol; c++) {
+         i = maxRow - 1;
+         j = i - 1;
+         while ( j >= 0 ){
+            if (board[j][c] !== board[i][c]) {
+                /* 
+                see if we need to crush. j is pointing at the first element that is not equal to i so there are j - i candy of the same type starting from i to j - 1
+                */
+                if (i - j > 2) {
+                    if (!crush.val) {
+                        crush.val = true;
+                    }
+                    
+                    for (k = i; k > j; k--) {
+                        board[k][c] = {val: board[k][c], crush: true};
+                    }
+                }
+                
+                i = j;
+            } 
+            
+            j--;
+         }
+         
+        /*
+            if you have i to 0 of the same type of candy, then when j went over the top, i will below 0, if i's position > 1, you have at least 3 candy of the same type on the top of the current column.
+        */
+         if (i > 1) {
+                if (!crush.val) {
+                    crush.val = true;
+                }
+             
+                for (k = i; k >=0; k--) {
+                    board[k][c] = {val: board[k][c], crush: true};
+                }
+             }
+        }
+
+        
+        // scan each row
+        for (r = 0; r < maxRow; r++ ){
+            i = 0;
+            j = i + 1;
+            while (j < maxCol) {
+                if ((board[r][j].val || board[r][j]) !== (board[r][i].val || board[r][i])) {
+                    if (j - i > 2) {
+                        if (!crush.val) {
+                            crush.val = true;
+                        }
+                        
+                        for (k = i; k < j; k++) {
+                            board[r][k] = {val: board[r][k], crush: true};
+                        }
+                    }
+
+                    i = j;
+                }
+
+                j++;
+            }
+
+            if (i < maxCol - 2) {
+                if (!crush.val) {
+                    crush.val = true;
+                }
+                
+                for (k = i; k < maxCol; k++) {
+                    board[r][k] = {val: board[k][c], crush: true};
+                } 
+            }
+        }
+    
+        for (i = 0; i < maxRow; i++) {
+            for (j = 0; j < maxCol; j++) {
+                if (board[i][j].crush) {
+                    board[i][j] = 0;
+                }
+            }
+        }
+}
+      
+function dropCandy(board) {
+    var maxRow = board.maxRow, maxCol = board.maxCol, i, j, k, r, c;
+    for (c = 0; c < maxCol; c++) {
+        i = maxRow - 1;
+        while (i >= 0) {
+            // i should point at the first 0 after this while loop
+            while (i >= 0 && board[i][c] !== 0){
+                i--;
+            }
+            
+            if ( i < 0) {
+                break;
+            }
+
+            j = i;
+            while (j >=0 && board[j][c] === 0) {
+                j--;
+            }
+            
+            if (j < 0) {
+                break;
+            }
+            
+            k = j;
+            while (k >= 0 && board[k][c] !== 0) {
+                k--;
+            }
+            
+            dropCandySingleColumn(board, c, i, j, k);
+            i -= j - k;
+        }  
+    }
+}
+
+function dropCandySingleColumn(board, c, i, j, k) {
+    if (j < 0) {
+        return;
+    }
+    
+    for (r = j; r > k; r--) {
+        board[i][c] = board[r][c];
+        board[r][c] = 0;
+        i--;
+    }
+}
+      var board = [[110,5,112,113,114],[210,211,5,213,214],[310,311,3,313,314],[410,411,412,5,414],[5,1,512,3,3],[610,4,1,613,614],[710,1,2,713,714],[810,1,2,1,1],[1,1,2,2,2],[4,1,4,4,1014]];
+      
+      board = [[1,3,5,5,2],[3,4,3,3,1],[3,2,4,5,2],[2,4,4,5,5],[1,4,4,1,1]];
+      console.log(board);
+      candyCrush(board);
+      
+      /*
+        Bugs and issues:
+        1. when doing the curshing step, the changes you made while scanning the columns will have an impact on changes rows. if you change the value (crushing the candy) while you are going through the rows, it will impact the columns as well. so you will have to somehow mark the candy that will be crushed, and crush them after the initial scan.
+        
+        2. for this if condition if ((board[r][j].val || board[r][j]) !== (board[r][i].val || board[r][i])) you need to quote exp1 || exp2 before !==, it looks like other wise exp2 !== exp3 will be evalulated first, so you end up having exp1 || (exp2 !== exp3) || exp4 which is not what you want. || has very low priority, it gets evaluated after everything else if evaluated so you need to add parenthesis to make sure the logic is what you want.
+        
+        3. the 3 pointer moving forward algorithm, once you stop at one pointer, the next pointer starts right from where the previous pointer stops.
+        
+        4. after the first pass of crushing and dropping, there will be 0. the crushing function doesn't skipped the 0.
+      */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

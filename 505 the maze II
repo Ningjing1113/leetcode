@@ -1,0 +1,116 @@
+/*
+    505 the maze II
+*/
+
+/*
+    the shortest path for the ball to stop at the destination
+    BSF with a parent pointer to track the path
+    combined with BFS to find the next cell on a given direction.
+*/
+
+var shortestDistance = function (maze, start, destination) {
+    var maxRow = maze.length, maxCol = maze[0].length, queue = [], _maze = new Array(maxRow), i, j, cur, dest = {row: destination[0], col: destination[1]};
+    
+    maze.maxRow = maxRow;
+    maze.maxCol = maxCol;
+    for (i = 0; i < maxRow; i++) {
+        _maze[i] = new Array(maxCol);
+        for (j = 0; j < maxCol; j++) {
+            _maze[i][j] = {visited: false, parent: null};
+        }
+    }
+    
+    _maze[start[0]][start[1]].visited = true;
+    queue.push({row: start[0], col: start[1]});
+    while (queue.length > 0) {
+        cur = queue.unshift();
+        if (cur.row === dest.row && cur.col === dest.col) {
+            _maze[cur.row][cur.col].visited = true;
+            break;
+        }
+        
+        var opt = findNextStep(cur, maze, _maze);
+        for (i = 0; i < opt.length; i++) {
+            queue.push(opt[i]);
+        }
+    }
+    
+    if (_maze[cur.row][cur.col].parent === null) {
+        return -1;
+    }
+    
+    var step = 0;
+    cur = dest;
+    while (_maze[cur.row][cur.col].parent !== null) {
+        step += Math.abs(_maze[cur.row][cur.col].row - _maze[cur.row][cur.col].parent.row) +
+            Math.abs(_maze[cur.row][cur.col].col - _maze[cur.row][cur.col].parent.col);
+        
+        cur = _maze[cur.row][cur.col].parent;
+    }
+    
+    return step;
+}
+
+function findNextStep(cur, maze, _maze) {
+    /*
+        check if the direction exist (within the boundary and not visited), if so, call DFS to find the furthest cell on that direction
+    */
+    
+    var opt = [];
+    if (cur.row - 1 >= 0 && _maze[cur.row - 1][cur.col] !== 1 && !_maze[cur.row - 1][cur.col].visited ) {
+        opt.push(DFS({row: cur.row - 1, col: cur.col}, "U", maze, _maze))
+    } 
+    
+    /*
+    if () {
+    
+    }
+    
+    if (cur.row + 1 < max.maxRow && _maze[cur.row + 1][cur.col] !== 1 && !_maze[cur.row + 1][cur.col].visited) {
+        opt.push(DFS({row: cur.row + 1, col: cur.col}, "D", maze, _maze))
+    }
+    
+    if () {
+    
+    }
+    */
+}
+
+function DFS(cur, dir, maze, _maze) {
+    if (dir === "U") {
+        while (cur.row >= 0 && !_maze[cur.row][cur.col].visited) {
+            cur = {row: cur.row - 1; col: cur.col};
+        }
+        
+        return cur;
+    }
+    
+    /*
+    if () {
+        while () {
+        
+        }
+        
+        return cur;
+    }
+    
+    if () {
+        while () {
+        
+        }
+        
+        return cur;
+    }
+    */
+}
+
+
+
+
+
+
+
+
+
+
+

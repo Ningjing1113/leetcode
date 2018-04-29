@@ -1,0 +1,54 @@
+/*
+    287 find duplicate number
+*/
+/*
+    guess a number between 1 to n, starting from the middle. 
+    look for this number in the array
+    if this number appears more than once, that's the repeated number
+    if this number doesn't exist or this number appears only once, the repeated number can be greater or less than the guessed number e.g. 1, 2, 3, 3, 5. in this case 4 is missing because 3 takes 4's spot
+    e.g. 1, 2, 4, 4, 5 in this case 3 is missing because 4 takes 3's spot
+    in both case, if you find 2, which appears only once, the repeated number is behind; if you find 5, which also appears once, the repeated number is before.
+    the range to take the guessed number starts with 1 to n, 
+    the range then changes depending on whether you go left or right in the sequence 1 to n
+*/
+
+var findDuplicate = function(nums) {
+    var found = {val: false}, repeated = {val: null};
+    guessing(nums, 1, nums.length, found, repeated);
+    return repeated.val;
+};
+    
+    
+function guessing(nums, low, high, found, repeated) {
+    //console.log("low: " + low + " high: " + high);
+    if (low > high) {
+        return;
+    }
+
+    var guess = 0, count = 0;
+    guess = low + Math.floor((high - low + 1) / 2);
+    count = counting(guess, nums);
+
+    //console.log("guess: " + guess + " count: " + count);
+    if (count > 1) {
+        found.val = true;
+        repeated.val = guess;
+    } else {
+        guessing(nums, low, guess - 1, found, repeated);
+        if (!found.val) {
+            guessing(nums, guess + 1, high, found, repeated);
+        }
+    }
+};
+
+function counting(guess, nums) {
+    var count = 0, i = 0;
+    for (i = 0; i < nums.length; i++) {
+        if (nums[i] === guess) {
+            count++;
+        }
+    }
+
+    return count;
+};
+goldman sachs conference 601871706

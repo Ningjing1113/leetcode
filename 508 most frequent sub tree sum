@@ -1,0 +1,52 @@
+/*
+    508 most frequent subtree sum
+    
+    post order traverse
+*/
+
+var findFrequentTreeSum = function(root) {
+    var hash = {}, data = {sum: 0};
+    _recurse(root, data, hash);
+    
+    /* find the most frequent sum in the hash */
+    return findMostFrequent(hash);
+}; 
+
+function _recurse(root, data, hash) {
+    if (!root) {
+        return;
+    }
+    
+    var leftSum;
+    _recurse(root.left, data, hash);
+    leftSum = data.sum;
+    data.sum = 0;
+    
+    /* data.sum has the right tree sum after recursing the right tree. if you need to analyze the data collected from both left and right trees, you can put the right tree data into another variable. */
+    _recurse(root.right, data, hash);
+    data.sum += leftSum + root.val;
+    
+    if (!hash.hasOwnProperty(data.sum)) {
+        hash[data.sum] = 1;
+    } else {
+        hash[data.sum]++;
+    }
+}
+
+function findMostFrequent(hash) {
+    /* keys[i] is the sum, max is the frequency */
+    var maxf = 0, keys = Object.keys(hash), i, frequent = [];
+    for (i = 0; i < keys.length; i++) {
+        if (hash[keys[i]] > maxf) {
+            maxf = hash[keys[i]];
+        }
+    }
+    
+    for (i = 0; i < keys.length; i++) {
+        if (hash[keys[i]] === maxf) {
+            frequent.push(keys[i]);
+        }
+    }
+    
+    return frequent;
+}

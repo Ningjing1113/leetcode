@@ -1,0 +1,13 @@
+/*
+    312 burst balloons
+*/
+
+/*
+
+    1, 5, 4, 2, 3, 1, 6 
+    if you use the above sequence as an example, or more general, think about a1, a2, ... ak ... an (2 < k < n). the first step you have n choices, and then n - 1, all the way to the last balloon, this will give you n! time complexity. however, if you take k as the last balloon to burst, then you will first burst a1 to ak-1, and ak+1 to an, you have n choices for the last step, and each of them depends on a sub group of balloons get bursted first. here you can see there are overlapping problems. 
+    
+    you can easier calculate the coin you gain bursting each balloon in one pass. the base case would be when there are only two balloons, you can test both to see bursting which one gives you the larger number, then keep this one as the optimal solution. e.g., 2, 3. if you burst 2 first, you get 24, then 12, that's 36; if burst 3 first, you get 6 then 12, that's 18. then if you are to burst 4, 2, 3, you can burst 2,3 first then 4, which gives you 4 * optimal(2,3) or 3 * optimal(4, 2) or optimal(4) * optimal(3). if you are to burst 4, you pick each one as the last to burst and use the pre calculated optimal solution to calculate for this step.
+    
+    for n balloons, you don't know yet which one you should choose for the last to burst, so you need to check each one and pick the optimal solution. however, when you've picked a balloon as your last to burst, for this choice to yiel optimal solution, you do want to take the optimal solution from its left part and right part. notice that this is optimal structure but it's not gready. if it's gready, you don't have to enumerate each one as the last one, you could've just picked one based on some strategy. notice the optimal solution you have for smaller subproblems are also calculated through enumerating all possibilities (it't optimal structure).
+*/

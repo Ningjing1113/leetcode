@@ -1,0 +1,65 @@
+/*
+    417 pacific atlantic water flow
+*/
+
+var pacificAtlantic = function(matrix) {
+    /*
+    
+    check each cell on all possible directions (all four if they exist except the direction that goes back to its previous cell). before putting a cell in the stack, check if the value is less than the previous one and the cell hasn't been visited. after visiting a cell, you can mark it as connected to the ocean or not, so next time when you come to the same cell, you can leverage the previous connected or not connected results. 
+    
+    */
+      
+    var stack = [], i, j, positions = [], maxRow, maxCol, grid;;
+    maxRow = matrix.length - 1;
+    maxCol = matrix[0].length - 1;
+    grid = new Array(maxRow + 1);
+    for (i = 0; i < grid.length; i++) {
+        grid[i] = new Array(maxCol + 1);
+        for (j = 0; j < maxCol + 1; j++) {
+            grid[i][j] = {p: null; a: null};
+        }
+    }
+    
+    grid[0][0].p = true;
+    grid[maxRow][maxCol].a = true;
+    for (i = 0; i < maxRow; i++) {
+        for (j = 0; j < maxCol; j++) {
+            if (grid[i][j].p === null) {
+                DFS(matrix, grid, i, j, true, false, false, true);
+            }
+        }
+    }
+    
+    for (i = maxRow; i >= 0; i++) {
+        for (j = maxCol; j >= 0; j++) {
+            if (grid[i][j].a === null) {
+                DFS(matrix, grid, i, j, false, true, true, false);
+            }
+        }
+    }
+    
+    
+}
+
+function DFS(matrix, grid, i, j, up, right, down, left) {
+    var maxRow = matrix.length - 1, maxCol = matrix[0].length - 1, stack = [];
+    stack.push({row: i, col: j: flow: grid[i][j]});
+    while (stack.length > 0) {
+        cur = stack.pop();
+        
+        // check the exit condition
+        if (grid[cur.row][cur.col].p && up) {
+            stack = [];
+            grid[i][j].p = true;
+            return;
+        } else if (grid[cur.row][cur.col].a && down) {
+            stack = [];
+            grid[i][j].a = true;
+            return;
+        }
+        
+        
+        if (up && cur.row - 1 >= 0 && matrix[cur[row - 1]][cur.col] <= matrix[cur.row][cur.col] )
+    }
+    
+}

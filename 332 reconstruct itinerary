@@ -1,0 +1,146 @@
+/*
+    332 reconstruct itinerary
+*/
+
+/*
+    directed unweighted graph there might be cycles. since you can't leave from one place and trival to two places at the same time, each node will connect to at most one node. There might be cycle, meaning the tour might end at place that is previously visited. 
+    
+    DFS in directed graph:
+    if you have only one connected component, you can start from the root, use a stack or recusion function to do DFS. 
+    
+    if there might be more than one connected component, DFS needs to be nested in a for look that check wether each node has been visited already. when you start DFS from a node, this node is "discovered", after the DFS, this node is "visited". if during the DFS you come back to a node that is discovered, you've found a cycle. if you come to a node that is "visited", you've found a forward edge (you will have this type of edge int he course schedule problem because one course may have multiple prerequisites).
+    
+    you can pre process or post process a node. pre process is before you put it into the stack or call DFS recursively on it, post process is after you pop it out of the stack or first thing in the DFS. if you need to detect cycle, you can check the status of a node either in pre process or post process.
+    
+    
+    
+*/
+
+var findItinerary = function (tickets) {
+    var hash = {}, u, v, i, state = {}, stack = [], itinerary = [];
+    for ( i = 0; i < tickets.length; i++) {
+        u = tickets[i][0];
+        v = tickets[i][1];
+        
+        if (!hash.hasOwnProperty(u)) {
+            hash[u] = [];
+        }
+        
+        state[u] = "nondiscovered";
+        hash[u].push(v);
+    }
+    
+    stack.push("JFK");
+    while (stack.length > 0) {
+        cur = stack.pop();
+        if (state[cur] === "discovered") {
+            // has cycle
+            return [];
+        }
+        
+        state[cur] = "disvcovered";
+        itinerary.push(cur);
+        if (hash.hasOwnProperty(cur)) {
+            for (j = 0; j < hash[cur].length; j++) {
+                if (state[hash[cur][j]] === "nondiscovered") {
+                    stack.push(hash[cur][j]);
+                }
+            }
+        }
+    }
+    
+    return itinerary;
+}
+
+var findItinerary = function (tickets) {
+    if (!tickets || tickets.length === 0 || !tickets[0] || tickets[0].length === 0) {
+        return ["JFK"];
+    }
+    
+    var hash = {}, u, v, i, state = {}, itinerary = [];
+    for ( i = 0; i < tickets.length; i++) {
+        u = tickets[i][0];
+        v = tickets[i][1];
+        
+        if (!hash.hasOwnProperty(u)) {
+            hash[u] = [];
+        }
+        
+        state[u] = "nondiscovered";
+        hash[u].push(v);
+    }
+    
+    DFS(hash, "JFK", state, itinerary);
+    state["JFK"] = "visited";
+    return itinerary;
+};
+
+function DFS(hash, cur, state, itinerary) {
+    if (state[cur] === "discovered") {
+        return;
+    }
+    
+    state[cur] = "discovered"; 
+    itinerary.push(cur);
+    if (!hash.hasOwnProperty(cur)) {
+        return;
+    }
+    
+    for ( i = 0; i < hash[cur].length; i++) {
+        if (state[hash[cur][i]] !== "visited") {
+            DFS(hash, hash[cur][i], state, itinerary);
+            state[hash[cur][i]] = "visited";
+        }
+    }
+};
+
+/****************************************************************************************/
+
+var findItinerary = function (tickets) {
+    if (!tickets || tickets.length === 0 || !tickets[0] || tickets[0].length === 0) {
+        return ["JFK"];
+    }
+    
+    var hash = {}, u, v, i, itinerary = [];
+    for ( i = 0; i < tickets.length; i++) {
+        u = tickets[i][0];
+        v = tickets[i][1];
+        
+        if (!hash.hasOwnProperty(u)) {
+            hash[u] = [];
+        }
+        
+        hash[u].push(v);
+    }
+    
+    DFS(hash, "JFK", itinerary);
+    return itinerary;
+};
+
+function DFS(hash, cur, itinerary) {
+    itinerary.push(cur);
+    if (!hash.hasOwnProperty(cur)) {
+        return;
+    }
+    
+    while(hash[cur].length > 0) {
+        DFS(hash, hash[cur].shift(), itinerary);
+    }
+};
+
+
+
+[["AXA","EZE"],["EZE","AUA"],["ADL","JFK"],["ADL","TIA"],["AUA","AXA"],["EZE","TIA"],["EZE","TIA"],["AXA","EZE"],["EZE","ADL"],["ANU","EZE"],["TIA","EZE"],["JFK","ADL"],["AUA","JFK"],["JFK","EZE"],["EZE","ANU"],["ADL","AUA"],["ANU","AXA"],["AXA","ADL"],["AUA","JFK"],["EZE","ADL"],["ANU","TIA"],["AUA","JFK"],["TIA","JFK"],["EZE","AUA"],["AXA","EZE"],["AUA","ANU"],["ADL","AXA"],["EZE","ADL"],["AUA","ANU"],["AXA","EZE"],["TIA","AUA"],["AXA","EZE"],["AUA","SYD"],["ADL","JFK"],["EZE","AUA"],["ADL","ANU"],["AUA","TIA"],["ADL","EZE"],["TIA","JFK"],["AXA","ANU"],["JFK","AXA"],["JFK","ADL"],["ADL","EZE"],["AXA","TIA"],["JFK","AUA"],["ADL","EZE"],["JFK","ADL"],["ADL","AXA"],["TIA","AUA"],["AXA","JFK"],["ADL","AUA"],["TIA","JFK"],["JFK","ADL"],["JFK","ADL"],["ANU","AXA"],["TIA","AXA"],["EZE","JFK"],["EZE","AXA"],["ADL","TIA"],["JFK","AUA"],["TIA","EZE"],["EZE","ADL"],["JFK","ANU"],["TIA","AUA"],["EZE","ADL"],["ADL","JFK"],["ANU","AXA"],["AUA","AXA"],["ANU","EZE"],["ADL","AXA"],["ANU","AXA"],["TIA","ADL"],["JFK","ADL"],["JFK","TIA"],["AUA","ADL"],["AUA","TIA"],["TIA","JFK"],["EZE","JFK"],["AUA","ADL"],["ADL","AUA"],["EZE","ANU"],["ADL","ANU"],["AUA","AXA"],["AXA","TIA"],["AXA","TIA"],["ADL","AXA"],["EZE","AXA"],["AXA","JFK"],["JFK","AUA"],["ANU","ADL"],["AXA","TIA"],["ANU","AUA"],["JFK","EZE"],["AXA","ADL"],["TIA","EZE"],["JFK","AXA"],["AXA","ADL"],["EZE","AUA"],["AXA","ANU"],["ADL","EZE"],["AUA","EZE"]]
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,166 @@
+/*
+    652 find duplicate substrees
+*/
+/*
+    recursive structure of a duplicated subtree
+    if a tree is a duplicate of another tree, the left tree of this tree must also be a duplicate of that tree. 
+    you can do a in-order traverse, and track each value is a hash using the value as the key, the node as the mapped value. for each node you traverse, try to find its value in the hash. if the value exists, in the hash, check if the left tree and right tree of the mapped node also duplicates (you actually only need to look at the left node and right node due to the recursive structure of the duplicate tree). if so, you can conceptually grow a new duplicate tree from the left and right tree and map it to the current value in the hash. you can discard the left and right tree from the hash if you are only looking for duplicates trees without tracking their number, if you need to track the number of each duplicate tree. 
+*/
+
+var findDuplicateSubtrees = function(root) {
+    var duplicate = [], hash = {};
+    inOrderTraverse(root, hash, duplicate);
+    return duplicate;
+};
+
+function inOrderTraverse(root, hash, duplicate) {
+    if (!root) {
+        return;
+    }
+    
+    inOrderTraverse(root.left, hash, duplicate);
+    inOrderTraverse(root.right, hash, duplicate);
+    
+    if (!hash.hasOwnProperty(root.val)) {
+        hash[root.val] = root;
+    } else {
+        if ( (root.left && hash[root.left.val] || !root.left) 
+        && (root.right && hash[root.right.val] || !root.right) ) {
+            duplicate.push(root);
+            hash[root.left.val] = null;
+            hash[root.right.val] = null;
+            
+            /*do not delete leaf node from the hash if you want to track the number of duplicates because there is a chance you might have another leaf node that has the same value*/
+            /*
+            if (root.left && (root.left.left || root.left.right) {
+                hash[root.left.val] = null;
+            }
+            
+            if (root.right && (root.right.left || root.right.right)) {
+                hash[root.right.val] = null;
+            }
+            */
+        }
+    }
+}
+
+/*
+    1. check null tree, single node tree, and trees that has only left/right children
+    2. root cannot be in the duplicate
+    3. is it possible that the duplicate tree has the same value on at least two nodes 
+*/
+
+/*
+    Bug:
+    1. the algorithm can't handle the case when two or more nodes in the tree have the same value or nodes that are not in the tree have the same value with the nodes that are in duplidate trees because the hash is using the number as the key but the numbers are not unique. 
+    
+    you can still use the number as the key but map the value to the nodes. for each node, if its value is a key in the hash, then you check whether the left tree and right tree of your current node have the same structures as at least one of the mapped trees in the hash (base case will be leaf node, whose left and right tree are both null, otherwise you can check the duplicate hash). if so, add these two duplicate trees into another hash that tracks the duplicate trees using the value of their root nodes. basically one hash will give you quick access to nodes that has the same value, the other one will give you access to previously found duplicate trees (which can be used bu grow new duplicate trees), once you've grown a new duplicate tree, you can remove their left and right tree (if they exist) from the 2nd hash (because the duplicate tree structure means subtree of a duplicate tree must have been previously discovered and tracked as a duplicate tree, so if you don't need to track the number of each duplicate tree, you can savely remove them once they are used to grow a bigger duplicate tree).
+*/
+
+
+function _inOrderTraverse(root, hash, duplicate) {
+    if (!root) {
+        return;
+    }
+    
+    if (!hash.hasOwnProperty(root.val)) {
+        hash[root.val] = hash[root.val] && [];
+        hash[root.val].push(root);
+    } else {
+        var i;
+        for (i = 0; i < hash[root.val].length; i++) {
+            if (_isSameTree(hash[root.val][i], root)) {
+                duplicate.unshift(root);
+            }
+        }
+    }
+}
+
+function isSameTree(r1, r2) {
+    if (!r1 && !r2) {
+        return true;
+    }
+    
+    return isSameTree(r1.left, r2.left) && isSameTree(r1.right, r2.right) && r1.val === r2.val;
+}
+
+/*
+    1. in js, you can't use object as the hash key
+    2. the recursion solution works but it's time consuming
+    3. you can probably try to add an attribute to the tree node to link the duplicated trees 
+    e.g. if node1 duplicates node2, you do node1.duplicate = node2. That way when you try to determine whether nodeA and nodeB are duplicate trees (if they have the same val of course), you do 
+    if ((nodeA.left && nodeA.left.duplicate === nodeB.left || !nodeA.left) && (//check the right child))
+     so you don't need another datastructure to track the duplicate trees while traversing.
+*/
+
+var findDuplicateSubtrees = function(root) {
+    var duplicate = [], hash = {};
+    inOrderTraverse(root, hash, duplicate);
+    return duplicate;
+};
+
+
+function inOrderTraverse(root, hash, duplicate) {
+    if (!root) {
+        return;
+    }
+    
+    inOrderTraverse(root.left, hash, duplicate);
+    inOrderTraverse(root.right, hash, duplicate);
+    
+    if (!hash.hasOwnProperty(root.val)) {
+        hash[root.val] = [];
+        hash[root.val].push(root);
+    } else {
+        var i, cur;
+        for (i = 0; i < hash[root.val].length; i++) {
+            cur = hash[root.val][i];
+            if ((!cur.left || cur.left && cur.left.duplicate === root.left) 
+            && (!cur.right || cur.right && cur.right.duplicate === root.right)) {
+                cur.duplicate = root;
+                duplicate.unshift(root);
+                if (cur.left) {
+                    delete cur.left.duplicate;
+                }
+                
+                if (cur.right) {
+                    delete cur.right.duplicate;
+                }
+                
+                break;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

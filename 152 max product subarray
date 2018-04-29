@@ -1,0 +1,82 @@
+/*
+    152 max product subarray
+*/
+
+var maxProduct = function(nums) {
+    var i = 0;
+    while (i < nums.length && nums[i] !== 0) {
+        i++;
+    }
+    
+    if (i === nums.length) {
+        return 0;
+    }
+    
+    let max = {val: 0};
+    maxProductNoZero(nums, i, max);
+    return max.val;
+}
+
+function maxProductNoZero(nums, start, max) {
+    if (start === nums.length) {
+        return;
+    }
+    
+    var pre = 1, middle = 1, post = 1, i, j, k;
+    k = start;
+    while (k < nums.length && nums[k] > 0) {
+        pre *= nums[k];
+        k++;
+    }
+    
+    // k is either the end or the first 0 or the first negative
+    if (k === nums.length) {
+        max.val = pre > max.val ? pre : max.val;
+        return;
+    }
+    
+    if (nums[k] === 0) {
+        max.val = pre > max.val ? pre : max.val;
+        maxProductNoZero(nums, k+1, max);
+    }
+    
+    // k is now the first negative number
+    i = k;
+    k++;
+    let negCounter = 1;
+    while (k < nums.length && nums[k] !== 0) {
+        if (nums[k] < 0) {
+            negCounter++;
+            j = k;
+            middle = post;
+        }
+        
+        post *= nums[k];
+    }
+    
+    // calculate the max
+    if (negCounter === 1) {
+        max.val = Math.max(pre, post);
+    } else if (negCounter % 2 === 0) {
+        max.val = pre * post * nums[i];
+    } else {
+        let prod = 0;
+        if (nums[i] === nums[j]) {
+            prod = middle * nums[j] * Math.min(nums[i], nums[j]);
+        } else if (Math.min(nums[i], nums[j]) === nums[i]) {
+            prod = pre * nums[i] * middle;
+        } else {
+            prod = post;
+        }
+        
+        max.val = Math.max(max.val, prod);
+    }
+    
+    if (k === nums.length) {
+        return;
+    }
+    
+    if (nums[k] === 0) {
+        maxProductNoZero(nums, k + 1, max);
+    }
+}

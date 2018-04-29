@@ -1,0 +1,34 @@
+/*
+    464 can i win
+*/
+
+/*
+    if you model the solution of the problem using the last step, it will look like this. by taking a number as your last step, you try to win the game. you opponent will try not to let you win by either win first or leave you in the situation that with the number you last pick, you are not going to win. of course the previous step would be you try to win even earlier. e.g.
+    
+    1 2 3 4     target = 8
+    if your last choice is 1, you opponent has  2 3 4   7
+    if your opponent's previous step is 2, you have 3 4   5
+    if your previous step is 3, you opponent have 4     2
+    you opponent takes 4 which > 2
+    
+    the base case when a player has either one number left or you have a number that's already >= the target. in the example above. your numbers are 3, 1, you opponent get 4, 2, since your opponent takes the last step, you lose.
+    
+    if you pick 2 as your last step, the state of the game looks like:
+    you take 2, the poll is 1, 3, 4 target is 6
+    your opponent take 1    3, 4    5
+    you take 3              4       2
+    your opponent take 4    > 2
+    you have 2, 3,  you opponent has 1, 4, since your opponent take the last step, you lose.
+    
+    another way to play this would be:
+    your last step you pick 4, the pool is 1 2 3, the target is 4
+    your opponent picks 2, the pool is 1, 3, the target is 2
+    you pick 3 > 2
+    so by the end, you have 3 4, your opponent has 2, since you take the last step, you win
+    
+    so the lose or win really depends on which number you and your opponent takes, if you can always win no matter what, or take one number and no matter what your opponent takes, you always win, then you can force a win.
+    
+    by taking one number from the pool, you've created a smaller subproblem with a smaller pool and a smaller target number (since the pool only have positive integers). would you have overlapping sub problems? yes, if you pick 2 and then 3, it will be same as if you pick 3 and then 2. so you might be able to build the solution from ground up. what's the structure of a solution then? 
+    
+    for each number, the target number it's going to reach is from 1 to itself. if the pool is 1 2 3 4 and the target is 8, one subproblem will be pool is 1, 4, target is 3. for 3 numbers
+*/

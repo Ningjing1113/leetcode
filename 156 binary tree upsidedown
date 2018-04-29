@@ -1,0 +1,40 @@
+/*
+    accepted 102ms 100%
+    156 binary tree upside down
+*/
+
+/*
+    for a left child, bottom up, turn its parent into its right child, sibling into its left child.
+    reach the left most leaf while keep track of parent node.
+    work your way up by setting current to its parent until parent is null (original root)
+    
+*/
+
+var upsideDownBinaryTree = function(root) {
+    if (!root) {
+        return root;
+    }
+    
+    /* start from the left child of the root */
+    var p, cur = root;
+    while (cur.left) {
+        p = cur;
+        cur = cur.left;
+        cur.parent = p
+    }
+    
+    /* cur is the left most leaf now */
+    var _root = cur;
+    while( p ) {
+        cur.left = p.right;
+        p.right = null;
+        
+        cur.right = p;
+        p.left = null;
+        
+        cur = p;
+        p = cur.parent;   
+    }
+    
+    return _root;
+}

@@ -1,0 +1,19 @@
+/*
+    264 ugly number II
+*/
+
+/*
+    n-th ugly number (numbers whose only factors are 2, 3, 5 expect 1 which is also considered a ugly number)
+    you can choose from 2, 3, 5 as many times as you want, how to do choose to make sure you can build a increasing sequence rom 1 to n.
+    
+    another way is to check interger 1 by 1 to see if it's a ugly number, stop when you've collected n ugly numbers. 
+    
+    2x2
+    2x3
+    2
+    3x3
+    
+    2x5
+    3x5
+    5x5
+*/

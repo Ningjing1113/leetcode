@@ -1,0 +1,30 @@
+/*
+    3 longest substring without repeating characters.
+*/
+
+var LengthOfLongestSubstring = function(s) {
+    if (!s || s.length === 0) {
+        return 0;
+    }
+    
+    var hash = {}, i, max, pre;
+    for (i = 0; i < s.length; i++) {
+        if (hash.hasOwnProperty(s[i])) {
+            sub = i - pre;
+            pre = i;
+            hash = {};
+            if (max < sub) {
+                max = sub;
+            }
+        } else {
+            hash[s[i]] = true;
+        }
+    }
+    
+    sub = s.length - pre;
+    if (max < sub) {
+        max = sub;
+    }
+    
+    return max;
+}

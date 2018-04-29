@@ -1,0 +1,627 @@
+
+var facto = {};
+
+function numberWithUniqueDigits(n) {
+    
+    var i = 1, sum = 0;
+    for(i=0; i<=n; i++){
+        factorial(i);
+    }
+    
+    for(i=1; i<=n; i++) {
+        for(j=1; j<=i; j++) {
+            sum += combination(i, j);
+        }
+    }
+    
+    return Math.pow(10, n+1) - 9 * sum;
+    
+}
+
+function combination(n, r) {
+    if (n <= 0 || n < r) return 0;
+    if (n === 1) return 1;
+    return Math.round(factorial(n) / factorial(r) / factorial(n-r));
+}
+
+// factorial will be called with n increasing 1 by 1
+function factorial(n) {
+    if(n === 0) {
+        facto[0] = 1;
+        return facto[0];
+    }
+    
+    if(facto.hasOwnProperty(n)) {
+        return facto[n];
+    } else {
+        facto[n] = facto[n-1] * n;
+        return facto[n];
+    }
+}
+
+// forget return
+// forget to reset variable i after using it for another loop
+// the algorithm is wrong
+
+
+/*
+    you need to choose at least two digits from a number and place the same digits there to create a repeating number
+    for numbers that have only one digit, you can't create any numbers with repeating digits
+    for numbers that have two digits, you can only take all two to place the same digit
+    for numbers that have n (n > 2) digits, you can take 2, 3, ... , n numbers to place the same digit
+    if the number has more than 9 digits, you can take at most 9 spots, and there are n - 9 left where you can place any digit, you will still have a repeating number
+    
+    f(n) = 0, n = 1
+         = 9* ( c(n, 2) + c(n, 3) + ... + c(n, n) ), 2 <= n <= 9
+         = f(9) * 9^(n-9) , n > 9
+         
+    n = 3,
+    110 there are 10 options for the last digit 
+    101 10 options for the middle digit
+    011 9 options for the first digit, 111 will count twice
+*/
+function calculate(n) {
+    if (n === 1) return 0;
+    
+    var i = 1, sum = 0;
+    for(i=0; i<=n; i++){
+        factorial(i);
+    }
+    
+    for (i=2; i<=n; i++) {
+        sum += combination(n, i);
+    }
+        
+    sum *= 9;
+    
+    if (n > 9) {
+        sum *= Math.pow(9, n - 9);  
+    } 
+    
+    return Math.pow(10, n) - sum;
+}
+
+// the algorithm is still wrong
+
+/*
+    choose a number from 1 to 9 and assign it to the first spot
+    choose at least one more spot (up to n - 1) and assign them the same digit
+    you will have a repeating number as long as the digits you assign to other spots (if there is any left) is not the same as the one that is assigned to the first spot
+    these numbers are in one category
+    
+    you won't count the same number twice because each catogory of numbers will start with a different first digit
+*/
+
+function calculateFactorials(n) {
+    var i = 1, sum = 0;
+    for (i=0; i<=n; i++){
+        factorial(i);
+    }
+}
+
+function calculate(n) {
+    if (n===1) return 0;
+    calculateFactorials(n);
+    
+    var i, sum = 0;
+    for (i=1; i<n; i++) {
+        sum += combination(n-1, i) * Math.pow(10, n-i)
+    }
+    
+    return Math.pow(10, n) - 9 * sum;
+}
+
+// the algorithm is still wrong
+/*
+    if you have k spot to fill, you first pick a number between 0 and 9 and then pick at least 2 spots from your k spot to assign the digit you first picked. notice that if you pick 0, you actually can't assign it to the first spot. let's see an example using small numbers.
+    
+    let's say you have 5 spots to fill.
+    you pick 0, since you can't fill the first spot, you have to start from the second one
+    fill 2: x00xx x0x0x x0xx0
+            xx00x xx0x0
+            xxx00
+    fill 3: x000x x0x00
+            xx000
+    
+    notice that once you picked a spot to put your first digit, you have a smaller problem with the same nature. in the above exaple, when you try to fill 2 0s into the remaining 4 spot, if you pick the second spot for your first 0, then you have 3 spots left for the other 0. if you put the first 0 at the 3 spot, you have two spot left to put the other 0. in case of 3 0s, if you are trying to fit 3 0s, once you pick the second spot for a 0, you have 3 spots left for the remaining 2 0s.
+    
+    let's say your original problem is pick 2 from 4, your sub problem is pick 1 from 3, pick 1 from 2, and pick one from 1. if your original problem is pick 3 from 4, your sub problem is pick 2 from 3, and pick 2 from 2.
+    so if you can model the structure of the solution, you can build up your solution group up using dynamic programming. 
+    
+    also notice that it doesn't matter which digit you choose to place, it's more important that you figure out for a given digit, and a number of this digit you want to place, how many options you have. if you build a matrix to track the options of pick k from n (1 <= k <= n). you just need to loop through the matrix and build up your solution.
+    
+    let's see if we can describe the structure of the solution in a general term. you have n spot you are trying to fill with at least 2 digigits ranging from 0 to 9, 0 can't be fit into the first spot. the problem can be break into: 
+    fit 2 to n - 1 0s, fit 2 to n for each of 1 ~ 9
+*/
+
+var countNumbersWithUniqueDigits = function(n) {
+    var map = new Array(n+1), i;
+    map[0] = 0;
+    map[1] = n;
+    map[n] = 1;
+    
+    for (i = 2; i < n; i++) {
+        map[i] = 1;
+        for (j = n; j > i; j--) {
+            map[i] *= j;
+        }
+    }
+    
+    console.log(map);
+    
+    var nonunique = 0;
+    for (i = 2; i < n; i++) {
+        nonunique += map[i];
+    }
+    
+    console.log(nonunique);
+    return (Math.pow(10, n) - 1) - (nonunique + 9 * (nonunique + map[n]));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+..

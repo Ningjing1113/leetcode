@@ -1,0 +1,45 @@
+/*
+    accepted 295ms 100%
+    582 Kill process
+*/
+
+var killProcess = function(pid, ppid, kill) {
+    if (!pid || !ppid || kill < 0) {
+        return [];
+    } else if (pid.length === 1 && pid[0] === kill) {
+        return [kill];
+    } 
+    
+    var hash = {}, i;
+    for (i = 0; i < pid.length; i++) {
+        if (!hash.hasOwnProperty(ppid[i])) {
+            hash[ppid[i]] = {val: ppid[i], child:[]};
+        }
+        
+        if (!hash.hasOwnProperty(pid[i])) {
+            hash[pid[i]] = {val: pid[i], child:[]};
+        }
+        
+        hash[ppid[i]].child.push(hash[pid[i]]);
+    }
+    
+    var stack = [], cur, process = [];
+    stack.push(hash[kill]);
+    while (stack.length > 0) {
+        cur = stack.pop();
+        process.push(cur.val);
+        for (i = 0; i < cur.child.length; i++) {
+            stack.push(cur.child[i]);
+        }
+    }
+    
+    return process;
+}
+
+/*
+    code walk through
+    1. variables, empty array, single element array
+    
+    case walk through
+    1. 
+*/

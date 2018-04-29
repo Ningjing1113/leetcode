@@ -1,0 +1,67 @@
+/*
+    accepted: 105ms 100%
+    250. count univalue subtree
+*/
+
+/*
+    passing down a data structure to track the status
+    go left and right, then try to conbine the result
+    
+    sub problem structure. to solve the current node, the left right children (if exists) need to be solved first.
+    
+    notice that even if one of left right chilren is null, as long as the other is an univalue tree and has the same value of the root, the current node (root) is still an univalue tree.
+*/
+
+var countUnivalSubtrees = function(root) {
+    if (!root) {
+        return 0;
+    }
+    
+    var data = {uni:false, val: undefined, count: 0};  
+    _recurse(root, data);
+    return data.count;
+};
+
+function _recurse(root, data) {
+    /*
+    if (!root.left && !root.right) {
+        data.uni = true;
+        data.val = root.val;
+        data.count++;
+        return;
+    }
+    */
+    
+    var leftVal = undefined, leftUni = false;
+    if (root.left) {
+        _recurse(root.left, data);
+        if (data.uni) {
+            leftVal = data.val;
+            leftUni = true;
+        }
+    } else {
+        leftUni = true;
+        leftVal = root.val;
+    }
+    
+    data.uni = false;
+    data.val = undefined;
+    if (root.right) {
+        _recurse(root.right, data);
+    } else {
+        data.uni = true;
+        data.val = root.val;
+    }
+    
+    if (leftUni && data.uni && leftVal === root.val && data.val === root.val) {
+        data.count++;
+    }else {
+        data.val = undefined;
+        data.uni = false;
+    }
+}
+
+/*
+    Bug:
+    1. forget to reset data when the current tree (non leaf) is not a univalue tree.
+*/

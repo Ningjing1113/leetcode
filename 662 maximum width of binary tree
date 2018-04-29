@@ -1,0 +1,118 @@
+/*
+    662 maximum width of binary tree
+*/
+
+var widthOfBinaryTree = function(root) {
+  if (!root) {
+      return 0;
+  }
+  /* left most node on each level */
+  var leftMost = [], level = 0, cur, index = 1, maxWidth = 0, levelWidth = 0;
+  cur = root;
+  while (cur) {
+    if (!leftMost[level]) {
+        leftMost.push(index);
+    }
+    
+    if (cur.left) {
+        cur = cur.left;
+        index = index * 2 - 1;
+        level++;
+    } else if (cur.right) {
+        cur = cur.right;
+        index = index * 2;
+        level++;
+    } else {
+        cur = null;
+    }
+  }
+  
+  /* right most node on each level */
+  cur = root;
+  index = 1;
+  level = 0;
+  while (cur) {
+    levelWidth = index - leftMost[level] + 1;
+    if (levelWidth > maxWidth) {
+        maxWidth = levelWidth;
+    }
+    
+    if (cur.right) {
+        cur = cur.right;
+        index = index * 2;
+        level++;
+    } else if (cur.left) {
+        cur = cur.left;
+        index = index * 2 - 1;
+        level++;
+    } else {
+        cur = null;
+    }
+  }
+  
+  return maxWidth;
+};
+
+/*
+    walk through:
+    1. process index on each level at the beginning of while loop, then prepare cur, index and level for the next layer.
+*/
+
+/*
+    the algorithm is wrong because the node on a layer that goes to the next layer may not be the left or right boundary
+*/
+var widthOfBinaryTree = function(root) {
+  if (!root) {
+      return 0;
+  }
+  
+  var queue = [], layer = 0, index = 1, cur, maxWidth = 0, width;
+    leftIndex = 1;
+    rightIndex = 1;
+    root.layer = 0;
+    root.index = 1;
+    queue.push(root);
+    
+    while (queue.length > 0) {
+        cur = queue.shift();
+        //console.log(cur.index);
+        if (cur.layer > layer) {
+            //console.log(leftIndex + " " + rightIndex + " " + layer);
+            width = rightIndex - leftIndex + 1;
+            if (width > maxWidth) {
+                maxWidth = width;
+            }
+            
+            leftIndex = cur.index;
+            rightIndex = leftIndex;
+            layer++;
+            //console.log(leftIndex + " " + rightIndex + " " + layer);
+            //console.log("------------------------------------------");
+        } else {
+            rightIndex = cur.index;
+        }
+        
+        if (cur.left) {
+            cur.left.layer = layer + 1;
+            cur.left.index = cur.index * 2 - 1;
+            queue.push(cur.left);
+        }
+
+        if (cur.right) {
+            cur.right.layer = layer + 1;
+            cur.right.index = cur.index * 2;
+            queue.push(cur.right);
+        }
+        
+        delete cur.index;
+        delete cur.layer;
+        
+    }
+    
+    var lastLayerWidth = rightIndex - leftIndex + 1;
+    if (lastLayerWidth > maxWidth) {
+        maxWidth = lastLayerWidth;
+    }
+    
+    return maxWidth;
+};

@@ -1,0 +1,40 @@
+/*
+    accepted 122ms
+    230. kth smallest element in a binary search tree
+*/
+
+/*
+    in-order traverse
+*/
+
+var kthSmallest = function(root, k) {
+    var data = {sum: 0, k: null};
+    _recurse(root, data, k);
+    return data.k.val;
+};
+
+function _recurse(root, data, k) {
+    if (!root) {
+        return;
+    }
+    
+    _recurse(root.left, data, k);
+    if (data.k) {
+        return;
+    } else if (data.sum === k - 1) {
+        data.sum++;
+        data.k = root;
+        return;
+    }
+    
+    data.sum++;
+    _recurse(root.right, data, k);
+    if (data.k) {
+        return;
+    }
+}
+
+/*
+    Bugs:
+    1. no major bugs but there are lots of minor changes. before writting code, decide the data structures and parameter you would like to pass in
+*/

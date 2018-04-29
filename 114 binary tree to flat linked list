@@ -1,0 +1,32 @@
+/*
+    accepted 102ms
+    114 flatten binary tree to linked list
+*/
+
+var flatten = function(root) {
+    if (!root) {
+        return;
+    }
+    
+    var stack = [], cur, pre;
+    stack.push(root);
+    
+    while(stack.length > 0) {
+        cur = stack.pop();
+        if (cur.right) {
+            stack.push(cur.right);
+        }
+        
+        if (cur.left) {
+            stack.push(cur.left);
+        }
+        
+        if (!pre) {
+            pre = root;
+        } else {
+            pre.right = cur;
+            pre.left = null;
+            pre = cur;
+        }
+    }
+};

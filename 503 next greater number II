@@ -1,0 +1,45 @@
+/*
+    accepted 212 ms
+    503 next greater element II
+*/
+
+var nextGreaterElements = function(nums) {
+    if (!nums || nums.length === 0) {
+        return [];
+    }
+    
+    var stack = [], i = 0, nextGreater = [], hash = {};
+    stack.push({index: 0, value: nums[0]});
+    while (true){
+        cur = stack[stack.length - 1];
+        i = (i + 1) % nums.length;
+        /*
+            when i is pointing to the element that is also on the top of the stack, we came to the last largest element in the array. it's the last because elements on the right will be on the top of the stack since we are visiting the array from left to right. 
+        */
+        
+        if (i >= nextGreater.length ) {
+            nextGreater.push(undefined);
+        } else if (cur.index === i) {
+            break;
+        } 
+        
+        while (stack.length > 0 && nums[i] > cur.value) {
+            nextGreater[cur.index] = nums[i];
+            stack.pop();  
+            cur = stack[stack.length - 1];    
+        }
+
+        if (!hash.hasOwnProperty(i)) {
+            stack.push({index: i, value: nums[i]});  
+            hash[i] = true;
+        }
+    }
+    
+    /* only the largest values left in the stack at this point */
+    while (stack.length > 0) {
+        cur = stack.pop();
+        nextGreater[cur.index] = -1;
+    }
+    
+    return nextGreater; 
+};

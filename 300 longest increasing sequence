@@ -1,0 +1,90 @@
+/*
+    accepted 72ms 100%
+    300 longest increasing subsequence
+*/
+
+var lengthOfLIS = function(nums) {
+        if (!nums || !nums.length) {
+            return nums && nums.length || 0;
+        }
+    
+        var nextSml, nextLrg;
+        nextSml = findNext(nums, ((a, b) => {return a < b}));
+        nextLrg = findNext(nums, ((a, b) => {return a > b}));
+        
+        var maxLength = new Array(nums.length);
+        maxLength.fill(0, 0, nums.length - 1);
+        maxLength[nums.length - 1] = 1;
+        maxLength.max = 1;
+        //nextLrg.forEach((x, i) => x === null ? maxLength[i] = 1 : x);
+        maxLength.fill(1);
+        for (i = nums.length - 1; i >= 0; i--) {
+            backtracking(nums, i, nextLrg[i], nextLrg, nextSml, maxLength);
+        }
+
+        return maxLength.max;
+    };
+
+    function findNext(nums, predicate) {
+        var stack = [], next = new Array(nums.length), i, top;
+        for (i = 0; i < nums.length; i++) {
+            top = stack[stack.length - 1];
+            if (top === undefined) {
+                stack.push(i);
+                continue;
+            }
+
+            // 10, 9, 2, 5, 3, 1
+            while (stack.length > 0 && predicate(nums[i], nums[top])) {
+                top = stack.pop();
+                next[top] = i;
+            }
+
+            stack.push(i);
+        }
+        
+        while (stack.length > 0) {
+            next[stack.pop()] = null;
+        }
+
+        return next
+    }
+
+    function backtracking(nums, cur, next, nextLrg, nextSml, maxLength) {
+        if (!next) {
+            return;
+        }
+
+        if (nums[next] > nums[cur]) {
+            if (maxLength[next] + 1 > maxLength[cur]) {
+                maxLength[cur] = maxLength[next] + 1;
+                if (maxLength.max < maxLength[cur]) {
+                    maxLength.max = maxLength[cur];
+                }
+            }
+
+            backtracking(nums, cur, nextSml[next], nextLrg, nextSml, maxLength);
+        } else {
+            backtracking(nums, cur, nextLrg[next], nextLrg, nextSml, maxLength);
+        }
+    }
+    
+    /*
+        defect report:
+        algorithm
+        1. in the find next function, the final clear up of the stack (for element that don't have next* element) should be outside of the for loop 
+        2. when initializing the maxLength array, elements that don't have nextLrg should have max length 1, this is missing in the original version. for dynamic programming, the base case may not just be the last element, in this case, the base cases are those that don't have nextLrg.
+        
+        coding:
+        1. common array API such as map, fill, forEach, filter, reduce, concat, slice, etc. fill changes the origin array, just like unshift, shift, push, pop
+        2. forEach can take a second parameter index, the lamda looks like (x, i) => {}
+        
+        edge case:
+        1. [0], [2, 2] for each element, the base length should be 1 instead of 0. a single value counts for a length 1 increasing sequence.
+        
+        other:
+        typo
+        variable name 
+        function signature
+        1. calling a function i.e. array.forEach(), accessing an array or object property maxLength[index]
+    */

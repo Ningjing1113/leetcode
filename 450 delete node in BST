@@ -1,0 +1,76 @@
+/*
+    450 delete node in binary search tree
+*/
+
+var deleteNode = function(root, key) {
+    if (!root) {
+        return root;
+    }
+    
+    var stack = [], visited = {}, parent, cur;
+    stack.push(root);
+    while (stack.length > 0) {
+        cur = stack[stack.length - 1];
+        if (cur.val === key) {
+            return _delete(cur, root, parent);
+        }
+        
+        if (visited[cur.val]) {
+            stack.pop();
+            if (cur.right) {
+                parent = cur;
+                stack.push(cur.right);
+            }
+        } else {
+            if (cur.left) {
+                parent = cur;
+                stack.push(cur.left);    
+            }
+            
+            visited[cur.val] = true;
+        }   
+    }
+    
+    return root;
+};
+
+function _delete(cur, root, parent) {
+        var next = cur.right, pre = cur;
+        while (next && next.left) {
+            pre = next;
+            next = next.left;
+        }
+    
+        /* find the successor and its previous node */
+        if (next) {
+            next.left = cur.left;
+            cur.left = null;
+            if (pre !== cur) {
+                pre.left = next.right;
+                next.right = cur.right;
+                cur.right = null;
+            }
+            
+            if (parent) {
+                if (cur === parent.left) {
+                    parent.left = next;
+                } else {
+                    parent.right = next;
+                }
+            } else {
+                root = next;
+            }
+        } else {
+            if (parent) {
+                if (cur === parent.left) {
+                    parent.left = cur.left;
+                } else {
+                    parent.right = cur.left;
+                }
+            } else {
+                root = cur.left;
+            }
+        }
+
+        return root;
+}

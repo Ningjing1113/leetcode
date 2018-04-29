@@ -1,0 +1,103 @@
+/*
+    272 closest binary tree value II
+*/
+
+        var closestKValues = function(root, target, k) {
+        createParentLink(root);
+        var isLeftTree = false, small = {ref: root},large = {ref: root}, result = [];
+        findClosest(root, target, small, large, isLeftTree);
+        while (k > 0) {
+            if (large.ref.val - target < target - small.ref.val) {
+                k--;
+                result.push(large.ref.val);
+                large.ref = nextLarge(large.ref);
+            } else if (target - small.ref.val < large.ref.val - target) {
+                k--;
+                result.push(small.ref.val);
+                small.ref = nextSmall(small.ref);
+
+            } else {
+                result.push(large.ref.val);
+                large.ref = nextLarge(large.ref);
+                result.push(small.ref.val);
+                small.ref = nextSmall(small.ref);
+                k -= 2;
+            }
+        }
+
+        return result;
+
+    };
+      
+    function createParentLink(root) {
+        if (!root) {
+            return;
+        }
+        
+        root.left ? root.left.parent = root : true;
+        root.right ? root.right.parent = root : true;
+        createParentLink(root.left);
+        createParentLink(root.right);
+    }
+
+    function findClosest(root, target, small, large, isLeftTree) {
+        if (!root) {
+            return;
+        }
+
+        if (target === root.val) {
+            isLeftTree ? small.ref = root : large.ref = root;
+            return;
+        } else if (root.val < target) {
+            small.ref = root;
+            findClosest(root.right, target, small, large, true);
+        } else {
+            large.ref = root;
+            findClosest(root.left, target, small, large, false);
+        }
+    }
+
+    function nextLarge(cur) {
+        if (cur.right) {
+            cur = cur.right;
+            while (cur.left) {
+                cur = cur.left;
+            }
+
+            return cur;
+        } 
+
+        return nextNode(cur, false);
+    }
+
+    function nextSmall(cur) {
+        if (cur.left) {
+            cur = cur.left;
+            return cur;
+        }
+
+        return nextNode(cur, true);
+    }
+
+    function nextNode(cur, isSmaller) {
+        while (cur.parent && cur !== (isSmaller ? cur.parent.right : cur.parent.left)) {
+            cur = cur.parent;
+        }
+
+        if (cur.parent) {
+            cur = cur.parent;
+            return cur;
+        } else {
+            console.log(`no more ${isSmaller ? "smaller" : "larger"}`);
+            return cur;
+        }
+    }
+      
+    var tree = [
+        [18, 16, 41, 4, 17, 30, 50, null, 8, null, null, 25, null, null, null, 6, 10, 21, null, null, null, null, 12, null, null]
+        
+    ], r;
+      
+    r = createTree(tree[0]);
+    console.log(closestKValues(r, 14, 8));
+

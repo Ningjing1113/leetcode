@@ -1,0 +1,126 @@
+/*
+    accepted 130ms
+    574 friend circles
+*/
+
+/*
+    the friend relationship forms a undirected unweighted graph. the problem is asking how many connectec component there are in this graph.
+*/
+
+var findCircleNum = function (M) {
+    if (!M || M.length === 0 || !M[0] || M[0].length === 0) {
+        return 0;
+    }
+    
+    var n = M.length, visited = new Array(M.length), i, j, k, circle = 0, stack = [];
+    for (i = 0; i < n; i++) {
+        visited[i] = false;
+    }
+    
+    for (k = 0; k < n; k++) {
+        if (!visited[k]) {
+            circle++;
+            stack.push(k);
+            while (stack.length > 0) {
+                i = stack.pop();
+                if (!visited[i]) {
+                    visited[i] = true;
+                }
+
+                // for each connected number, do DFS
+                for (j = 0; j < n; j++) {
+                    if (i === j) {
+                        continue;
+                    }
+
+                    if (M[i][j] === 1 && !visited[j]) {
+                        stack.push(j);
+                    }
+                }
+            }
+        }  
+    }
+    
+    return circle;
+};
+
+
+/*
+    [[1,1,0],
+     [1,1,1],
+     [0,1,1]]
+     
+     run a depth first search in a 0 1 matrix. since you are looking for the area that's covered by 1, when the stack is empty, you've fully explored the connected area. 
+     This algorithm is wrong
+*/
+
+
+var findCircleNum = function (M) {
+    if (!M || M.length === 0 || !M[0] || M[0].length === 0) {
+        return 0;
+    }
+    
+    var grid = new Array(M.length), i, j;
+    for (i = 0; i < grid.length; i++) {
+        grid[i] = new Array(M[0].length);
+        for (j = 0; j < grid[i].length; j++) {
+            grid[i][j] = {visited: false}; // may need to modify this state later
+        }
+    }
+    
+    var stack = [], circle = 0, cur, maxRow = grid.length - 1, maxCol = grid[0].length - 1;
+    for (i = 0; i < grid.length; i++) {
+        for (j = 0; j < grid[0].length; j++) {
+            if (M[i][j] === 1 && !grid[i][j].visited) {
+                circle++;
+                stack.push({row: i, col: j});
+                while (stack.length > 0) {
+                    cur = stack.pop();
+                    grid[cur.row][cur.col].visited = true;
+                    if (cur.row - 1 >= 0 && M[cur.row - 1][cur.col] === 1 && !grid[cur.row - 1][cur.col].visited) {
+                        stack.push({row: cur.row - 1, col: cur.col});
+                    }
+                    
+                    if (cur.col + 1 <= maxCol && M[cur.row][cur.col + 1] === 1 && !grid[cur.row][cur.col + 1].visited) {
+                        stack.push({row: cur.row, col: cur.col + 1});
+                    }
+                    
+                    if (cur.row + 1 <= maxRow && M[cur.row + 1][cur.col] === 1 && !grid[cur.row + 1][cur.col].visited) {
+                        stack.push({row: cur.row + 1, col: cur.col});
+                    }
+                    
+                    if (cur.col - 1 >= 0 && M[cur.row][cur.col - 1] === 1 && !grid[cur.row][cur.col - 1].visited) {
+                        stack.push({row: cur.row, col: cur.col - 1})
+                    }
+                }
+            }
+        }
+    }
+    
+    return circle;
+    
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,95 @@
+/*
+    accepted
+    298 binary tree longest consecutive sequence
+*/
+
+/*
+    sub prolbem structure, solve the same problem on root.left and root.right, then determine if the solution can extended to the root.
+    
+    the minimum length of a sequence is 2, unless it's single node tree.
+    a sequence can be increasing (from child to parent) or decreasing
+    
+*/
+
+var longestConsecutive = function(root) {
+    if (!root) {
+        return 0;
+    }
+    
+    var longest = {inc: 0, dec: 0};
+    _recurse(root, longest);
+    
+    /*
+    if (root.sequence.inc > longest.inc) {
+        longest.inc = root.sequence.inc;
+    }
+    
+    if (root.sequence.dec > longest.dec) {
+        longest.dec = root.sequence.dec;
+    }
+    */
+    
+    return longest.dec > root.sequence.dec ? longest.dec : root.sequence.dec;
+};
+
+function _recurse(root, longest) {
+    if (!root) {
+        return;
+    }
+    
+    _recurse(root.left, longest);
+    _recurse(root.right, longest);
+    
+    var leftInc, rightInc, leftDec, rightDec;
+    leftInc = rightInc = leftDec = rightDec = 1;
+    if (root.left) {
+        if (root.left.val + 1 === root.val) {
+            leftInc = root.left.sequence.inc;
+            delete root.left.sequence.inc;
+            leftInc++;
+        } else if (root.left.val - 1 === root.val) {
+            leftDec = root.left.sequence.dec;
+            delete root.left.sequence.dec;
+            leftDec++;
+        } 
+        
+        if (root.left.sequence.inc > longest.inc) {
+            longest.inc = root.left.sequence.inc;
+        }
+
+        if (root.left.sequence.dec > longest.dec) {
+            longest.dec = root.left.sequence.dec;
+        }
+        
+        delete root.left.sequence;
+    }
+    
+    if (root.right) {
+        if (root.right.val + 1 === root.val) {
+            rightInc = root.right.sequence.inc;
+            delete root.right.sequence.inc;
+            rightInc++;
+        } else if (root.right.val - 1 === root.val) {
+            rightDec = root.right.sequence.dec;
+            delete root.right.sequence.inc;
+            rightDec++;
+        } 
+        
+        if (root.right.sequence.inc > longest.inc) {
+            longest.inc = root.right.sequence.inc;
+        }
+
+        if (root.right.sequence.dec > longest.dec) {
+            longest.dec = root.right.sequence.dec;
+        }
+        
+        delete root.right.sequence;
+    }
+    
+    /* determine which paths (if there is any) should be root.sequence */
+    root.sequence = {inc: 0, dec: 0};
+    root.sequence.inc = leftInc > rightInc ? leftInc : rightInc;
+    root.sequence.dec = leftDec > rightDec ? leftDec : rightDec;
+}
+
+

@@ -1,0 +1,39 @@
+/*
+    accepted 86ms
+    96 unique binary search trees
+*/
+
+/*
+    1 2 3 ... k ... n
+    pick k as the root, the number of unique bst f(k) is f(k-1) + f(n - k + 1). 
+    
+    to solve f(k), you need to know f(k-1). there will be overlapping sub problems. the solution can be build sequentially from left to right; in another words, the problem has optimal structure, meaning the choices you made before won't impact the choices you made later on because the sub problems are solved sequentially.
+    
+    the structure of the problem is: given length n, you pick each number as the root, calculate the number of unique bst you can form with this root, then add up all the numbers with each node being the root. the base case is
+    f(0) = 0
+    f(1) = 1
+    
+    1 2 3 4 5
+*/
+
+var numTrees = function(n) {
+    var nums = new Array(n+1);
+    nums[0] = 0;
+    nums[1] = 1;
+    
+    if (n < 2) {
+        return nums[n];
+    }
+    
+    for (i = 2; i < n + 1 ; i++) {
+        var num = 0;
+        for (j = 1; j < i + 1; j++) {
+            // if the sub tree is an empty tree, it counts for 1
+            num += (nums[j - 1] || 1) * (nums[i - j] || 1);
+        }
+        
+        nums[i] = num;
+    }
+    
+    return nums[n];
+};

@@ -1,0 +1,32 @@
+/*
+    remove letters
+*/
+
+var removeLetters = function(str1, str2) {
+    if ((!str2 || str2.length === 0) && str1 || !str1 || str1.length === 0) {
+        return str1;
+    } 
+    
+    var hash = {};
+    [].forEach.call(str2, (letter, i) => {
+        if (!hash.hasOwnProperty(letter)) {
+            hash[letter] = true;
+        }
+    });
+    
+    let index = [];
+    [].forEach.call(str1, (letter, i) => {
+        if (hash.hasOwnProperty(letter)) {
+            index.push(i);
+        }
+    });
+    
+    let str = "", i = 0, j = index.shift();
+    while (j) {
+        str += str1.substring(i, j);
+        i = j;
+        j = index.shift();
+    }
+    
+    return str;
+}

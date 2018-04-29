@@ -1,0 +1,54 @@
+/*
+    361 bomb enemy
+    
+*/
+
+/*
+    
+*/
+var maxKilledEnemies = function(grid) {
+  var maxRow = grid.length, maxCol = grid[0] && grid[0].length, row, col;
+  for (row = 0; row < maxRow; row++) {
+    numberOfEnemy(grid, row, null, 0, maxCol, ((val) => val++));
+    numberOfEnemy(grid, row, null, maxCol - 1, -1, ((val) => val--));  
+  }
+  
+  var max = {val:0, row: 0, col: 0};
+  for (col = 0; col < maxCol; col++) {
+    numberOfEnemy(grid, null, col, 0, maxRow, ((val) => val++));
+    numberOfEnemy(grid, null, col, maxRow - 1, -1,((val) => val--), max);
+  }
+  
+  return max.val;
+};
+
+function numberOfEnemy(grid, row, col, start, end, next, max) {
+    var j = start, enemy = 0;
+    while (j !== end) {
+        cur = grid[row || j][ col || j];
+        if (cur === 0) {
+            row = row === null ? j : row;
+            col = col === null ? j : col;
+            if (grid[row][col].e) { // how do you deal with row or col === 0
+                grid[row][col].e += enemy;
+            } else {
+                gird[row][col] = {e: enemy};
+            }
+            
+            let cell = grid[row][col];
+            if (max && cell.e > max.val) {
+                max.val = cell.e;
+                max.row = row;
+                max.col = col;
+            }
+        } else if (cur === "E") {
+            enemy++;
+        } else {
+            // a wall
+            enemy = 0;
+        }
+        
+        j = next(j);
+    }
+}
+

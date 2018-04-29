@@ -1,0 +1,106 @@
+Cases in chart of account edit/add account dialog
+
+Four cases are documented here so if you want to debug edit account dialog to fix issues are extend features, the documented functions might be where to look at. 
+
+The format of the document is like a call stack just like when you are debugging, you have breakpoints set up in these functions. Explanations are added above each important function.
+
+case 1: Initialize COA account list
+chartOfAccountsViewController.js (mixes in listsViewController)
+  initGrid()
+    ListsViewController.js
+        /*initialize an instance of ListsGrid.js, query the account data from listsStore.js, and register event handlers including update, error and sort. so if you need to check the account list data or change the event handlers, this is the place to look at. 
+        This function also renders grid rows, a place you can check how each row is rendered.
+        */
+      initGrid()
+      
+case 2: Open Edit account dialog
+AccountDialogViewController.js
+    show()
+    
+        /*
+        if you are editing an account, this is the id of the account you are about to edit, if you are creating a new account, the id is -1.
+        after loading the account, you will have chance to add customized logic for bank connect flow, or creating new account. if you need to add customized logic for other flow, you can pass a parameter into the show function and add your logic here. This is also the place if you want to do last minute customization, after calling this.inherited in the callback of loadData, the edit account dialog is rendered. Any UI rendering changes you make here will re-render the dialog.
+        */
+        loadData(id)
+            loadPrefs()
+                AccountModel.js
+                    loadAllAccounts()
+                        AccountService.js
+                        
+                            /*
+                            the url is neo/v1/company/xxxxxx/lists/account/getPrefs, where xxxx is the company id. this request returns all accounts you will see on the COA list
+                            */
+                            loadAllAccounts()
+                            
+            /*
+            fetch the account from account model or create a new one is id is -1. after fetching the account, originalTypeId and originalDetailTypeId was set. These two fields will be used to compare with the new type and detail type if you make changes in the edit account dialog.
+            */
+            loadAccount(id)
+                AccountService.js
+                    load(id)
+            
+            
+case 3: Save an edited account and create a new one right after saving
+AccountDialogViewController.js
+    /*
+    it follows the mvc model, you will find save function in the AccountModel.js and AccountService.js, pretty straightforward, nothing fancy here.
+    */
+    saveAndNew()
+    successLaunchNew()
+        /*
+        load account data without passing in any id. loadData will call loadPref for another API call. you might consider caching the account info so you don't have to reqeust it everytime a new account is created.
+        */
+        loadData()
+            loadPrefs()
+            /*
+            in this path, since id is undefined, loadAccount tries to initialize a new account dialog. since the model still has the data retained from the previously edited account, you need to clear the model first by this.model.clear(), then set up the default typeId and default type id for the dialog. typeId is the attach point of the account type drop down, when you do this.typeId.set("value", "1"), it sets the account type to the first account, I don't know why but the quickfill dropdown starts with 1 not zero and it's a string not a number. Since we have onChange event handler for account type, which will sets the detail type and description. This model clear and typeId setup fixes QBO-188786.
+            */
+            loadAccount()
+        emit("dialog-success")
+            ListsGridActionsMixin.js
+                /*
+                this functions handles dialog-success and emit another event to fresh the COA list (so you can see your changes). if you want to do something after editing the account before refreshing the list, this is the place. For example, logging something asny.
+                */
+                showDialog()
+                emit("listItemUpdated")
+                    ListsViewController.js
+                        refreshGridOnSamePage()
+                        
+case 4: Add a new account
+AccountDialogViewController.js
+    /*
+    it's like initializaing a new account dialog after saving an edited account, the difference is the account id is -1. loadAccount (which is called from loadData), handles id = -1 and id = undefined the same way. It first clears the model and sets the default account type, which triggers the setup of the default detail account type and description.
+    */
+    loadData(-1);
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+            
+            
+      
+      

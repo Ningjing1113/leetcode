@@ -1,0 +1,190 @@
+// 549 binary tree longest consecutive sequence II
+
+/* left right root */
+var longestConsecutive = function(root) {
+    if (!root) {
+        return 0;
+    }
+    
+    var max = {val: 1};//path = [1];
+    findPath(root, max);
+    updatePath(max, root.increase);
+    updatePath(max, root.decrese);
+    return path[path.length - 1];
+};
+
+function findPath(root, max) {
+    if (!root) {
+        return;
+    }
+    
+    findPath(root.left, path);
+    findPath(root.right, path);
+    var leftInc, rightInc, leftDecr, rightDecr;
+    if (root.left) {
+        if (root.val === root.left.val + 1) {
+            if (root.left.increase) {
+                leftInc = root.left.increase
+                leftInc.length++;
+                delete root.left.increase;
+            } else {
+                leftInc = {tail: root, length: 2};
+            }
+        } else if (root.val === root.left.val - 1){
+            if (root.left.decrese) {
+                leftDecr = root.left.decrese;
+                leftDecr.length++;
+                delete root.left.decrese;
+            } else {
+                leftDecr = {tail: root, length: 2};
+            }
+        } 
+        
+        if (root.left.increase) {
+            updatePath(max, root.left.increase);
+            delete root.left.increase;
+        }
+        
+        if (root.left.decrease) {
+            updatePath(max, root.left.decrease);
+            delete root.left.decrease;
+        }      
+    }
+
+    if (root.right) {
+        if (root.val === root.right.val + 1) {
+            if (root.right.increase) {
+                rightInc = root.right.increase
+                rightInc.length++;
+                delete root.right.increase;
+            } else {
+                rightInc = {tail: root, length: 2};
+            }
+        } else if (root.val === root.right.val - 1){
+            if (root.right.decrese) {
+                rightDecr = root.right.decrese;
+                rightDecr.length++;
+                delete root.right.decrese;
+            } else {
+                rightDecr = {tail: root, length: 2};
+            }
+        } 
+        
+        if (root.right.increase) {
+            updatePath(max, root.right.increase);
+            delete root.right.increase;
+        }
+        
+        if (root.right.decrease) {
+            updatePath(max, root.right.decrease);
+            delete root.right.decrease;
+        }
+    }
+    
+    root.increase = getLongest(leftInc, rightInc);
+    root.decrease = getLongest(leftDecr, rightDecr);
+    if (leftInc && rightDecr) {
+        updatePath(max, {tail: root.right, length: leftInc.length + rightDecr.length - 1});
+    } else if (leftDecr && rightInc) {
+        updatePath(max, {tail: root.left, length: leftDecr.length + rightInc.length - 1});
+    }
+}
+
+function getLongest(p1, p2) {
+    if (!p1 && !p2) {
+        return null;
+    } else if (!p1) {
+        return p2;
+    } else if (!p2) {
+        return p1;
+    } else if (p1.length >= p2.length){
+        return p1;
+    } else {
+        return p2;
+    }
+}
+
+function updatePath(max, path) {
+    if (!path) {
+        return;
+    }
+    
+    if (path.length > max.val) {
+        max.val = path.length;
+    }
+}
+
+/*insert a val into a sorted array(increasing)*/
+function addPath(path, val) {
+    var i;
+    path.push(val);
+    for (i = path.length - 2; i >= 0; i--) {
+        if (path[i] > val) {
+            path[i+1] = path[i];
+        } else {
+            path[i] = val;
+            break;
+        }
+    }
+}
+
+
+
+/*
+    Before running the code:
+    1. check edge case that root is null
+    2. check edge case that root is the only node
+    3. if we are only tracking the length of the path, addPath can reject the paths that are shorter than the longest path (the last path)
+*/
+
+/*
+    Bug:
+    1. since we update the longest path when the paths can't be extended to its parent(meaning that we close a path and see if it updates the longest), we need to make sure the paths that pass the root is compared with the longest because root doesn't have parent node.
+
+    2. a node can be added to an increasing or descreasing path, however if its child node also has a path of the oposite direction, this path needs to be closed and compared with the longest. so the code should look like
+    
+    for each child
+    if (might have an increasing path) {
+        form the path   
+    } else if (might have an decreasing path) {
+        form the path
+    } 
+    
+    if (this child has an increasing path) {
+        close the path
+    }
+    
+    if (this child has an descreasing path) {
+        close the path
+    }
+    
+    keep the checking of the child node logic outside of the if else because you need to check it regardless whether the path can be extended or not. of course if you can extend the increasing path you don't have to check the increasing path on the child, but this doesn't handel the case when the current root can't be added into any path
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

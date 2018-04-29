@@ -1,0 +1,109 @@
+/*
+    694 number of distinct islands
+*/
+
+/*
+    11000
+    11000
+    00011
+    00011
+*/
+
+var numDistinctIslands = function(grid) {
+    var visited = new Array(grid.length);
+    
+    // initialize visited grid
+    for (i = 0; i < visited.length; i++) {
+        visited[i] = new Array(grid[0].length);
+        for (j = 0; j < visited[i].length; j++) {
+            visited[i][j] = false;
+        }
+    }
+    
+    var startPoint = {row: 0, col: 0}, count = {val: 0};
+    DFS(grid, visited, startPoint, count);
+    
+    return count.val;
+}
+
+function DFS(grid, visited, startPoint, count) {
+    var maxrow = grid.length, maxcol = grid[0].length, i, j, hash = {};
+    for (i = startPoint.row; i < maxrow; i++){
+        for (j = starPoint.col; j < maxcol; j++) {
+            if (grid[i][j] === 1 && !visited[i][j]) {
+                stack = [];
+                stack.push({row: i, col: j});
+                while (stack.length > 0) {
+                    cur = stack.pop();
+                    visited[cur.row][cur.col] = true;
+                    if (cur.row + 1 < maxRow) {
+                        stack.push({row: cur.row + 1, col: cur.col});
+                    }
+                    
+                    if (cur.col + 1 < maxCol) {
+                        stack.push({row: cur.row, col: cur.col + 1});
+                    }
+                }
+            }
+            
+            visited[i][j] = true;
+            
+            // found an island
+            if (!islandExists(startPoint, hash)) {
+                hash[i + "-" + j] = true;
+            }
+        }
+    }
+}
+
+function islandExist(startPoint, hash, grid) {
+    var keys = Object.keys(hash), cur, i, stack = [], _stack=[], row, _row, col, _col;
+    for (i = 0; i < keys.length; i++) {
+        cur = keys[i].split("-");
+        _stack.push({row: cur[0], col: cur[1]});
+        stack.push(startPoint);
+        
+        while (stack.length > 0) {
+            island = stack.pop();
+            row = island.row;
+            col = island.col;
+            
+            _island = _stack.pop();
+            if (!_island) {
+                return false;
+            }
+            
+            _row = _island.row;
+            _col = _island.col;
+            
+            if (row+1 < maxRow && gird[row+1][col] === 1) {
+                stack.push({row: row+1, col: col});
+                if (_row + 1 >= maxRow || grid[_row+1][_col] !== 1) {
+                    return false;
+                } else {
+                    _stack.push({row: _row+1, col: _col});
+                }
+            } else {
+                if (_row + 1 < maxRow && grid[_row+1][col] !== 0) {
+                    return false;
+                }
+            }
+            
+            if (col+1 < maxCol && grid[row][col+1] === 1) {
+                stack.push({row: row, col: col + 1});
+                if (_col+1 >= maxCol || grid[_row][_col+1] !== 1) {
+                    return false;
+                } else {
+                    _stack.push({row: _row, col: _col + 1});
+                }
+                
+                
+            } else if (_col + 1 < maxCol && grid[_row][_col + 1] !== 0) {
+                return false;
+            }
+        }
+        
+    }
+    
+    return true;
+}

@@ -1,0 +1,51 @@
+/*
+    accepted 145 ms 84%
+    341 flatten nested list iterator
+*/
+
+var NestedIterator = function(nestedList) {
+    //console.log(nestedList);
+    this.stack = [];
+    this.intStack = [];
+    while (nestedList.length > 0) {
+        this.stack.push(nestedList.shift());    
+    }
+    
+    this.flatten();
+};
+
+NestedIterator.prototype.flatten = function() {
+    var cur;
+    while (this.stack.length > 0) {
+        cur = this.stack.shift();
+        if (!cur) {
+            continue;
+        }
+
+        if (cur.isInteger()) {
+            this.intStack.push(cur.getInteger());
+        } else {
+            cur = cur.getList();
+            while (cur.length > 0) {
+                this.stack.unshift(cur.pop());
+            }
+        }    
+    }
+    
+    //console.log(this.intStack);
+};
+/**
+ * @this NestedIterator
+ * @returns {boolean}
+ */
+NestedIterator.prototype.hasNext = function() {
+    return this.intStack.length > 0; 
+};
+
+/**
+ * @this NestedIterator
+ * @returns {integer}
+ */
+NestedIterator.prototype.next = function() {
+    return this.intStack.shift();
+};

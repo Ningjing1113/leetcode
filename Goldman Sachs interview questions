@@ -1,0 +1,761 @@
+/*
+    goldman sachs interview questions
+*/
+/*
+    burst repeating letters (stack or two pointers)
+*/
+
+function burst3Inplace(str) {
+            var i, j, repeat = 0;
+            i = 0, j = 1;
+            while (j <= str.length) {
+                cur = str[j];
+                cur = cur || " ";
+                if (cur === str[i]) {
+                    j++;
+                } else {
+                    if (j - i >2) {
+                        // burst i to j - 1
+                        for (k = 0; k < j - i; k++) {
+                            
+                        }
+                        
+                        str = str.substring(0, i) + str.substring(j);
+                        j = i;
+                        
+                        // check if there is any chaining
+                        k = i - 1;
+                        if (k < 0) {
+                            // bbbc
+                            j++;
+                        } else if (str[k] !== str[j]) {
+                            // abbbc
+                            i = k;
+                        } else {
+                            // ccbbbc
+                            while (k >= 0 && str[k] === str[j]) {
+                                k--;
+                            }
+
+                            k++;
+                            i = k;
+                        }
+                    } else {
+                        i = j;
+                        j++;
+                    }
+                }
+            }
+            
+            return str;
+        }
+      
+      console.log(burst3Inplace("abdccce"));
+      console.log(burst3Inplace("abcccb"));
+      console.log(burst3Inplace("abcccbb"));
+      console.log(burst3Inplace("abcccbbbaad"));
+
+/*
+    3 pair increasing/decreasing (stack, graph DFS)
+*/
+2, 3, 1, 5, 4, 6
+
+first large:
+2 3
+3 5
+1 5
+5 6
+4 6
+6 null
+
+first small:
+2 1
+3 1
+1 null
+5 4
+4 null
+6 null
+
+increasing 3-number pair:
+if you traverse the array once and use a stack to keep track of the first larger of each element, you've partially mapped out the "larger than" relationship among the elements in the array. on the other hand, if you traverse one more time (can you do both in one pass?) and use another stack to track of the first smaller of each element, you've partially mapped out the "smaller than" relationship among the elements in the array. Partially means you could have a value that is smaller than your current value's first large but still larger than your current value. With first larger and first smaller hash maps, together you will find out what is the first larger and smaller element of your current value. 
+
+if you model this relationship as a binary tree (for now), each value will have at most two children, first larger and first smaller, and each child will also have at most two children, the leaf node will have no child. However, the first larger of your current first smaller might also be your current first large, consider the following relationship between 5, 4, and 6. 6 is the first larger of 5, 4 is the first samller of 5, 6 is also the first large of 4. now you have a cross edge between two siblings, making the binary tree a directed graph (directed because we are looking the values from left to right).
+array is 2, 3, 1, 5, 4, 6
+3
+\
+ 5
+ /\
+4 -6
+
+now if we've modled the data structure of this problem as a directed graph, what is the algorithm that can be applied to solve it? since we are looking for 3 number increasing pairs, these paris are path from top down with length 3. we can find path in a graph using either DFS or BFS, sometimes it doesn't matter. let's see how do you find the 3 pair. you start from the top or (could be any value in the middle), let's call this value i, you definitely want to include the first large as your next value, let's call this value k, from k following the larger than map, each following value will be larger than i so they are all valid candidate for the second value in the pair. the first smaller of k might also be larger than i, so if you skip k and gather the first smaller of k, let's call it j, which is larger than i, that could be you second number candidate also. the same gathering rule applies to the children of k's first larger and smaller. in summary this can be your traversial strategy: first go to first large k, include it in the pair, and go to the next first large, now you've used k, from there you can go to K's first large recursively. Or without including k, you go to k's first small j and see if it's larger than i, if so, include it, and check both j's first large and small recursively. since you first go to i's first large k and from there you go both k's first large and small, it's neither DFS nor BFS or you can say it's both, but anyways the traversal logic matter more than the label you give to it. or you can call it using a more general term backtracking (DFS is a special case of backtracking in that you only have one candidate at each step)
+
+you can write a recursion function to do the DFS while tracking how many numbers you've collected, if you've got three (you can check the variable that tracks the pair) and looking for the 4th one, you've had a solution already. with DFS (or more general backtracking), the base case can be checked with another variable if you problems cares about how many steps you've taken instead of how many values you've collected. 
+
+another issue you should consider is the overlapping problem. e.g. if you go through the numbers from left to right, you will end up looking through pairs you have already visited. i.e. 
+2, 3, 1, 5, 4, 6 you will be using pair 4, 6 for both 2 and 3. overlapping problem is a sign of dynamic programming. ideally, we would want to solve the smaller problems first and build up the solution for larger (in terms of size) problems later without solving the smaller sub problems over and over again. in the case of 3 number increasing pair, if you solve the two pair inceasing for each number from right to left, you just need to connect two 2 number pairs together to get a three number pair. however the problem is to use DP, we would need to cache the solutions for smaller sub problems, which requires extra space.
+
+first large:
+2 3
+3 5
+1 5
+5 6
+4 6
+6 null
+
+first small:
+2 1
+3 1
+1 null
+5 4
+4 null
+6 null
+
+var pairOfThree = function(nums) {
+            var large = {}, small = {};
+            // find the first large
+            firstValueAfter(nums, large, function(val1, val2){
+                if (val1 > val2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+
+            // find the first small
+            firstValueAfter(nums, small, function(val1, val2){
+                if (val1 < val2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+
+            var pair = [], allPairs = [], i;
+            for (i = 0; i < nums.length - 2; i++) {
+                pair.push(nums[i]);
+                backtracking(nums, i, large, small, pair, allPairs); 
+                pair.pop();
+            }
+            
+            return allPairs;
+        }
+
+        function firstValueAfter(nums, hash, f) {
+            var i, stack = [], top;
+            for (i = 0; i < nums.length; i++) {
+                top = stack[stack.length - 1];
+                if (top === undefined) {
+                    stack.push(i);
+                    continue;
+                }
+
+                /* 
+                    if you want to find first large, make sure f return a number that is not zero when the first parameter is greater than the second one
+                */
+                while (stack.length > 0 && f(nums[i], nums[top])) {
+                    top = stack.pop();
+                    hash[top] = i;
+                }
+
+                stack.push(i);
+            }
+
+            while (stack.length > 0) {
+                top = stack.pop();
+                hash[top] = null;
+            }
+        }
+      
+      function backtracking(nums, index, large, small, pair, allPairs) {
+          if (pair.length === 3) {
+              allPairs.push(pair.map((x) => x));
+              return;
+          }
+          
+          /* 
+                notice that large[index] won't be 0, otherwise you can't use this if condition because in JS 0 evaluates to false
+          */
+          if (large[index]) {
+              var nextLarge = large[index];
+              pair.push(nums[nextLarge]);
+              backtracking(nums, nextLarge, large, small, pair, allPairs);
+              pair.pop();
+              backtracking(nums, nextLarge, large, small, pair, allPairs);
+              
+              if (small[nextLarge]) {
+                  if (nums[index] < small[nextLarge]) {
+                      pair.push(nums[small[nextLarge]]);
+                      backtracking(nums, small[nextLarge], large, small, pair, allPairs);
+                      pair.pop();
+                  }
+              }
+          }
+     }
+
+     console.log([2, 3, 1, 5, 4, 6]);
+     console.log(pairOfThree([2, 3, 1, 5, 4, 6]));
+    
+/*
+    1. merging two strings while keeping the order of characters (backtracking)
+    8. distance to the nearest 0 (BFS)
+    
+    2. the number of pairs that add up to a given sum (backtracking, DP, two pointer)
+    3. combination sum to k (two pointer)
+    4. max sum sub array (two pointer)
+    
+    
+    6. Fibonacci Series for very large n (DP)
+    7. ways of getting up to n steps if you can do 1 2 or 3 steps at one time(DP)
+    
+    
+    
+    9. find the max leaf to leaf sum in a bt (tree)
+    10. find the max node to node sum in a bt (tree)
+    
+    5. max sum sub matrix
+    11. spiral order traversal of matrix
+    [[1,3,5,5,2],
+     [3,4,3,3,1],
+     [3,2,4,5,2],
+     [2,4,4,5,5],
+     [1,4,4,1,1]]
+     
+    function traverseSpiral(matrix) {
+        var maxRow = matrix.length, maxCol = matrix[0].length,
+        total = maxRow * maxCol, sequence = [], row = -1, col = -1;
+        maxRow += 2;
+        maxCol += 2;
+        while (sequence.length < total) {
+            row++;
+            col++;
+            maxRow -= 2;
+            maxCol -= 2;
+            traverseCircle(row, col, maxRow, maxCol, sequence);
+        }
+        
+        console.log(sequence);
+    }
+    
+    function traverseCircle(row, col, maxRow, maxCol, sequence) {
+        var i, j;
+        for (i = col; i < maxCol; i++) {
+            sequence.push(matrix[row][i]);
+        }
+        
+        for (i = row; i < maxRow; i++) {
+            sequence.push(matrix[i][maxCol - 1]);
+        }
+        
+        for (i = maxCol - 1; i >= col; i--) {
+            sequence.push(matrix[maxRow - 1][i]);
+        }
+        
+        for (i = maxRow - 1; i >= row; i--) {
+            sequence.push(matrix[i][col]);
+        }
+    }
+    
+    function traverseSpiral(matrix) {
+            if (!matrix || !matrix[0]) {
+                return [];
+            }
+            
+            var maxRow = matrix.length, maxCol = matrix[0].length, sequence = [], _matrix;
+            _matrix = new Array(maxRow);
+            for (i = 0; i < maxRow; i++) {
+                _matrix[i] = new Array(maxCol);
+                for (j = 0; j < maxCol; j++) {
+                    _matrix[i][j] = {visited: false};
+                }
+            }
+
+            matrix.maxRow = maxRow;
+            matrix.maxCol = maxCol;
+            dfs(matrix, _matrix, 0, 0, sequence);
+            console.log(sequence);
+            return sequence;
+        }
+
+        function dfs(matrix, _matrix, row, col, sequence) {
+            if (_matrix[row][col].visited) {
+                return;
+            }
+
+            sequence.push(matrix[row][col]);
+            _matrix[row][col].visited = true;
+
+            // right
+            if (col + 1 < matrix.maxCol) {
+                dfs(matrix, _matrix, row, col + 1, sequence);
+            }
+
+            // down
+            if (row + 1 < matrix.maxRow) {
+                dfs(matrix, _matrix, row + 1, col, sequence);
+            }
+
+            // left
+            if (col - 1 >= 0) {
+                dfs(matrix, _matrix, row, col - 1, sequence);
+            }
+
+            // up
+            if (row - 1 >= 0) {
+                dfs(matrix, _matrix, row - 1, col, sequence);
+            }
+        }
+
+        var matrix = [[1,3,5,5,2],
+         [3,4,3,3,1],
+         [3,2,4,5,2],
+         [2,4,4,5,5],
+         [1,4,4,1,1]];
+        console.log(matrix);
+        traverseSpiral(matrix);
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+    
+    12. rotate matrix by 90 180 270 degree
+    13. a sorted array that has been rotated k times, find out k
+    
+     1 2 3 4 5 6 7 8
+     4 5 6 7 8 1 2 3
+     7 8 1 2 3 4 5 6
+     1 2 3 4 5 6 7 8
+*/
+/*
+    merge two strings i.e. "abc", "de" while keeping the order of letters within each string
+    you need to pick one string to start with and once you've picked a string, since you have to pick letter from left to right to maintain the order of letters in both strings, you can only pick the first letter of the string of your choice. 
+    
+    the second step is to pick another letter from either string as long as you pick from left to right. once you've picked s1.length + s2.length letters (there are other ways to determine the end of the merging), you've formed one way of merging.
+    
+    so you have two choices at the first step. if you keep two pointers pointing at the next available choice in both strings, you can pick either one as your next step. so you have two choices at each of the following step if you have choices in both string, if you've picked all letters in one string, then you can just append whatever left in the other string to the merged string.
+*/
+        var mergeString = function(s1, s2) {
+            var i = 0, j = 0, merge = [], allMerge = [];
+            backtracking(s1, s2, i, j, merge, allMerge);
+            console.log(allMerge);
+        }
+
+        function backtracking(s1, s2, i, j, merge, allMerge) {
+            if (merge.length === s1.length + s2.length) {
+                allMerge.push(merge.reduce((s, x) => s + x));
+                return;
+            }
+
+            if (i < s1.length) {
+                merge.push(s1[i]);
+                i++;
+                backtracking(s1, s2, i, j, merge, allMerge);
+                merge.pop();
+                i--;
+            } 
+
+            if (j < s2.length) {
+                merge.push(s2[j]);
+                j++;
+                backtracking(s1, s2, i, j, merge, allMerge);
+                merge.pop();
+                j--;
+            }
+        }
+
+        mergeString("ab", "cd");
+        mergeString("abc", "de");
+
+
+/*
+    max sum sub matrix
+    -1  2 3 -1
+     2 -2 4  2
+     1 -2 1 -1
+     0 -1 2  0
+    
+    sub matrix is obtained by deleting some rows and columns from the original matrix.
+    since you would need to delete the entire row or column to get a sub matrix, to find out the max sum of a sub matrix, it's helpful to find the sum of each row and column first. if you have any row or column whose sum is negative, you definitely want to delete them, notice that once you delete a row or column, it will impact the colums or rows that go cross the deleted one.
+    
+    delete the second column since it has the smallest negative sum. then you end up having the following matrix with sum 12
+    -1  3 -1
+     2  4  2
+     1  1 -1
+     0  2  0
+     
+     if you delete the third row first
+     -1 2 3 -1
+     2 -2 4  2
+     0 -1 2  0
+     you still need to delete the second column, and you end up having the following sub matrix, whose sum is 11
+     -1 3 -1
+     2  4  2
+     0  2  0
+     
+     so you would want to start deleting the smallest negative column, recalculate the row column sum and delete the next smallest negative until all row and column sum values are positive. if you don't have any negative sum rows or columns to start with, the max sum matrix is the original matrix itself
+     
+     to make the algorithm efficient, ideally you don't want to recalculate each row and column everytime you delete something, instead, you can update the previous calculated the rows and columns sum and pick the smallest negative one from there.   
+*/
+
+        var maxSumSubMatrix = function(matrix) {
+        var maxRow = matrix.length, maxCol = matrix[0] && matrix[0].length, rowSum = {}, colSum = {}, i, j;
+
+        for (i = 0; i < maxRow; i++) {
+            rowSum[i] = 0;
+        }
+
+        for (j = 0; j < maxCol; j++) {
+            colSum[j] = 0;
+        }
+
+        for (i = 0; i < maxRow; i++) {
+            for (j = 0; j < maxCol; j++) {
+                rowSum[i] += matrix[i][j];
+                colSum[j] += matrix[i][j];
+            }
+        }
+
+        console.log(rowSum);
+        console.log(colSum);
+        var r = findMin(rowSum), c = findMin(colSum);
+        while (r !== undefined || c !== undefined) {
+            if (r && c) {
+                if (rowSum[r] < colSum[c] && rowSum[r] < 0) {
+                    deleteRow(r, rowSum, colSum, maxCol, matrix);
+                } else if (rowSum[r] > colSum[c] && colSum[c] < 0) {
+                    deleteCol(c, rowSum, colSum, maxRow, matrix);
+                }
+            } else if (r && rowSum[r] < 0) {
+                deleteRow(r, rowSum, colSum, maxCol, matrix);
+            } else if (c && colSum[c] < 0) {
+                deleteCol(c, rowSum, colSum, maxRow, matrix);
+            }
+
+            r = findMin(rowSum);
+            c = findMin(colSum);
+        }
+
+        // the max sum is whatever left in rowSum and colSum added up
+        var vals = Object.values(rowSum);
+        return vals.reduce((a, val) => a + val);
+    }
+
+    function findMin(hash) {
+        var keys = Object.keys(hash), i, min = Infinity, index = 0;
+        for (i = 0; i < keys.length; i++) {
+            if (hash[keys[i]] < min) {
+                min = hash[keys[i]];
+                index = i;
+            }
+        }
+
+        if (min >= 0) {
+            index = undefined;
+        }
+
+        return index;
+    }
+
+    function deleteRow(r, rowSum, colSum, maxCol, matrix) {
+        delete rowSum[r];
+        for (i = 0; i < maxCol; i++) {
+            colSum[i] -= matrix[r][i];
+        }
+    }
+
+    function deleteCol(c, rowSum, colSum, maxRow, matrix) {
+        delete colSum[c];
+        for (i = 0; i < maxRow; i++) {
+            rowSum[i] -= matrix[i][c];
+        }
+    }
+
+    console.log([
+        [-1, 2, 3, -1],
+        [2, -2, 4, 2],
+        [1, -2, 1, -1],
+        [0, -1, 2, 0]
+    ]);
+     
+    console.log(maxSumSubMatrix(
+    [
+        [-1, 2, 3, -1],
+        [2, -2, 4, 2],
+        [1, -2, 1, -1],
+        [0, -1, 2, 0]
+    ]));
+    
+    /*
+        Bugs and issues:
+        1. when deleting a data field from an Object, the key need to be string if want to use delete object.key otherwise you need to use delete object[key]
+        2. after removing all the negative sum rows and colums, you only need to sum all the rows or columns once to get the sum of the sub array
+    */
+    
+    
+/*
+    distance to the nearest 0
+    on leetcode
+    accepted 108ms 100%
+    
+    
+    
+    traver the matrix, for each gate (0), do a BFS and mark reachable room the distance to this gate, if a room is previously marked with a distance, replace it if the new distance is smaller. each gate has at most 4 directions. a possible move should stay inside of the matrix's boundary (maxRow, maxCol) and be a room.
+*/
+
+var wallsAndGates = function(rooms) {
+    var maxRow = rooms.length, maxCol = rooms[0] && rooms[0].length, i, j;
+    for (i = 0; i < maxRow; i++) {
+        for (j = 0; j < maxCol; j++) {
+            if (rooms[i][j] === 0) {
+                BFS(rooms, i, j);
+            }
+        }
+    }
+};
+
+function BFS(rooms, row, col) {
+    var queue = [], cur, step = 1;
+    queue.push({row: row, col: col});
+    while (queue.length > 0) {
+        cur = queue.shift();
+        if (cur.row - 1 >= 0 && rooms[cur.row - 1][cur.col] > 0) {
+            if (rooms[cur.row - 1][cur.col] > step) {
+                rooms[cur.row - 1][cur.col] = step;
+            }
+            
+            queue.push({row: cur.row - 1, col: cur.col });
+        }
+        
+        if (cur.row + 1 < rooms.maxRow && rooms[cur.row + 1][cur.col] > 0) {
+            if (rooms[cur.row + 1][cur.col] > step) {
+                rooms[cur.row + 1][cur.col] = step;
+            }
+            
+            queue.push({row: cur.row + 1, col: cur.col });
+        }
+        
+        if (cur.col - 1 >= 0 && rooms[cur.row][cur.col - 1] > 0) {
+            if (rooms[cur.row][cur.col - 1] > step) {
+                rooms[cur.row][cur.col - 1] = step;
+            }
+            
+            queue.push({row: cur.row, col: cur.col - 1 });
+        }
+        
+        if (cur.col + 1 < rooms.maxCol && rooms[cur.row][cur.col + 1] > 0) {
+            if (rooms[cur.row][cur.col + 1] > step) {
+                rooms[cur.row][cur.col + 1] = step;
+            }
+            
+            queue.push({row: cur.row, col: cur.col + 1 });
+        }
+        
+        step++;
+    }
+}
+
+[
+[R,-1,0, R],
+[R, R,R,-1],
+[R,-1,R,-1],
+[0,-1,R, R]
+]
+
+  [ r, -1, 0,  1 ],
+  [ r,  r, 1, -1 ],
+  [ r, -1, r, -1 ],
+  [ 0, -1, r,  r ]
+  
+  [ r, -1, 0,  1 ],
+  [ r,  2, 1, -1 ],
+  [ r, -1, 2, -1 ],
+  [ 0, -1, r,  r ]
+  
+  [ r, -1, 0,  1 ],
+  [ r,  2, 1, -1 ],
+  [ r, -1, 2, -1 ],
+  [ 0, -1, r,  r ] 
+  
+  /*
+    Bugs and issues:
+    1. at each step, you will put all possible move into the queue, for these moves, they are have the same step value. however, if you increase step by 1 everytime you visits the head of the queue, you will be incorrectly increasing step if you've enqueued more than one room when handling the previous step. the correct way to track step if to use whatever step of the current room or door (for door, the initial value is 1) and increase it by one when checking it's possible next move.
+    
+    in directed unweighted graph, BFS is able to find the shortest path. 
+  */
+  
+  /*
+    6. Fibonacci Series for very large n (DP)
+  */
+  
+  var fibonacci = (function() {
+    var f = [0, 1];
+    
+    return function(n) {
+        while (f.length < n - 1) {
+            f.push(f[f.length - 1] + f[f.length - 2]);
+        }
+        
+        return f[f.length - 1];
+    }
+  }());
+  
+  console.log(fibonacci(8));
+
+/*
+    7. ways of getting up to n steps if you can do 1 2 or 3 steps at one time(DP)
+*/
+/*
+    you can solve this in 3 different ways. first, if you modle this problem as: you at each step you have 3 options, depending on the option you take, you will have varies number of rest steps to take. second, if you try to solve this from bottom up using dynamic programming, you just need to find out from step 4 to n (1, 2, 3 are base cases), how many ways you have for each number k (4 <= k <= n). third, you can solve this from top to bottom using recursion.
+*/
+
+var ways = function(n) {
+    if (n < 4) {
+        return n;
+    }
+    
+    var ways = [1, 2, 3], i;
+    for (i = 4; i < n; i++) {
+        ways[i] = ways[i - 1] + ways[i - 2] + ways[i - 3];
+    }
+    
+    return ways[n - 1];
+}
+
+var numberOfWays = (function(){
+    var ways = [1, 2, 3];
+
+    return function(n) {
+        if (n <= ways.length) {
+            return ways[n - 1];
+        }
+
+        while (ways.length < n) {
+            ways.push(ways[ways.length - 1] + ways[ways.length - 2] + ways[ways.length - 3]);
+        }
+
+        console.log(ways);
+        return ways[n - 1];
+    }
+}());
+
+console.log(numberOfWays(5));
+console.log(numberOfWays(8));
+
+var findWays = function(n) {
+    if (n === 1) {
+        return 1;
+    } else if (n === 2) {
+        return 2;
+    } else if (n === 3) {
+        return 3;
+    }
+    
+    return findWays(n-1) + findWays(n-2) + findWays(n-3);
+}
+
+var findWays = (function(){
+            var ways = [1, 2, 3];
+
+            return function f(n) {
+                if (n <= ways.length) {
+                    return ways[n - 1];
+                }
+
+                var n1, n2, n3;
+                n3 = findWays(n - 3);
+                n2 = findWays(n - 2);
+                n1 = findWays(n - 1);
+
+                ways.push(n1 + n2 + n3);
+
+                console.log(ways);
+                return n1 + n2 + n3;
+            }
+
+    }());
+
+    console.log(findWays(8));
+    
+    /*
+        bugs and issue:
+        1. if you put the values in an array and capture the array in a closure to reuse, since your array index starts from 0, your actually result for number n is at index n - 1. so when you check if you've have the requested value, you should check if (n <= ways.length) because the largest value you've calculated is ways.length, at index ways.length - 1
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

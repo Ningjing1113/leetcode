@@ -1,0 +1,63 @@
+/*
+    accepted 96ms 100%
+    259 3sum smaller
+*/
+
+/*  algorithm:
+    [-2, 0, 1, 3] target = 2
+    it can be easiely solved by backtracking, but the time complexity will be exponetial. another way is to use three pointers. since you are looking for 3 number pair that sums up to smaller than the target value, you can always anchor one number using on pointer, and try to find a pair of two from the rest. 
+    
+    noticed that you need to first sort the array, the first pointer k starts from left and travels to the right, the pair of pointers i and j starts from k + 1 to n - 1 inclusive. since you are looking for 3 numbers, for each number you anchored with k, you've picked this number, when you move to k + 1 to anchor this one, you are not using k for sure since you are only going from left to right. by establishing this sequencial order, you are able to beat exponential time complexity because you've transfer the problem from randoms selecting numbers from a range to sequencially looking for the combination.
+*/
+
+    var threeSumSmaller = function(nums, target) {
+        if (!nums || nums.length < 3) {
+            return 0;
+        }
+    
+        var i, j, k, triple = [], allPairs = [], counter = 0;
+        nums.sort((a, b) => {return a - b});
+        //console.log(nums);
+        for (k = 0; k < nums.length - 2; k++) {
+            var diff = target - nums[k];
+            //triple.push(nums[k]);
+            i = k + 1;
+            j = nums.length - 1;
+            while (i < j) {
+                let sum = nums[i] + nums[j];
+                if (sum <= diff) {
+                    let _j = j;
+                    while (_j > i) {
+                        if (nums[_j] + nums[i] < diff) {
+                            //allPairs.push(triple.concat([nums[i], nums[_j]])); 
+                            counter++;
+                        }
+                        
+                        _j--;
+                    }
+                    
+                    i++;
+                } else {
+                    j--;
+                }
+            }
+
+            //triple.pop();
+        }
+    
+        //console.log(allPairs);
+        return counter;
+    };
+      /*
+      
+            defect report:
+            algorithm:
+            
+            coding:
+            
+            edge case:
+            1. when you found a pair i, j that sum up to the diff, by moving _j from j to i + 1, you try to collect the pairs that sum up to smaller than diff, but there might be repeated numbers in the array, so by moving _j to the left, the sum may not decrease.
+            
+            others:
+            1. when sorting an array using Array.prototype.sort the lamda should be nums.sort((a, b) => {return a > b}); for ascending sort.
+      */

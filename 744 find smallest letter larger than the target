@@ -1,0 +1,147 @@
+    /*
+        next greater letter
+        
+    */
+        /*
+        var nextGreatestLetter = function(letters, target) {
+            let nums = letters.map((letter) => { return letter.charCodeAt() }),
+                z = "z".charCodeAt(),
+                a = "a".charCodeAt(),
+                _target = target.charCodeAt();
+
+            /*
+            a [ b, d, e ] the diff between target and nums[0] or the diff between nums[nums.length - 1] and z plus the diff between a and target
+            */
+      /*
+            let = j = letters.length - 1;
+            if (_target === nums[0]) {
+                return letters[findNextDifferent(nums, 0)];
+            } else if (_target < nums[0]) {
+                if (z - nums[j] + _target - a > nums[0] - _target) {
+                    return letters[0];
+                } else {
+                    return letters[j];
+                }
+            } else if (_target >= nums[j]) {
+                // [b, d, e] k
+                return letters[0];
+            } else {
+                return binarySearch(letters, nums, 0, j, _target, {small: -1, large: -1});
+            }
+        };
+
+
+        function binarySearch(letters, nums, low, high, _target, pre) {
+            let mid = low + Math.floor((high - low + 1) / 2);
+            if (nums[mid] === _target) {
+                // the case that mid is the last one so there is no mid + 1 has been handled as an edge case
+                return letters[findNextDifferent(nums, mid)];
+            } else if (nums[mid] < _target) {
+                if (pre.large >= 0) {
+                    // you only update pre when mid is greater than the target
+                    // so if mid is now smaller than target and pre is not null
+                    // the current mid must be the closet smaller of target
+                    // and pre must be the closet (smallest) greater of the target
+                    return letters[pre.large];
+                } 
+                
+                pre.small = mid;
+                return binarySearch(letters, nums, mid + 1, high, _target, pre);
+            } else if (nums[mid] > _target) {
+                if (pre.small > 0) {
+                    return letters[mid];
+                }
+                
+                pre.large = mid;
+                return binarySearch(letters, nums, low, mid - 1, _target, pre);
+            }
+        }
+      
+      function findNextDifferent(nums, index) {
+          let i = index + 1;
+          while (i < nums.length && nums[index] === nums[i]) {
+              i++;
+          }
+          
+          if (i === nums.length) {
+              return 0;
+          } else {
+              return i;
+          }
+          
+      };
+      // a c d g j k
+      console.log(nextGreatestLetter(["c", "f", "j"], "a"));
+      console.log(nextGreatestLetter(["c", "f", "j"], "c"));
+      console.log(nextGreatestLetter(["c", "f", "j"], "d"));
+      console.log(nextGreatestLetter(["c", "f", "j"], "g"));
+      console.log(nextGreatestLetter(["c", "f", "j"], "j"));
+      console.log(nextGreatestLetter(["c", "f", "j"], "k"));
+      console.log(nextGreatestLetter(["c", "f", "j", "k", "t"], "d"));
+      console.log(nextGreatestLetter(["c", "f", "j", "k", "s"], "q"));
+      console.log(nextGreatestLetter(["e","e","e","e","e","e","n","n","n","n"], "e"));
+      */
+      /*
+            defect report:
+            algorithm:
+            1. it's possible that you find a smaller value first and then a larger value since you are interested in when the value flip from larger to smaller (or smaller to larger), you should track two previous values, both small and large. if you have a long list and your target is on the far left, you may have several pre large then flip to pre small, or vise versa. when this flip happens you've found the smallest larger.
+            
+            2. there might be repeated letters in the array, so when you find a match, you need to go right until you find one that is not the same as your match, or if you go off the boundary, return the first one instead
+            
+            3. in the binary search, unless you find a exact match, the exit condition should be when low goes across high, by then the pre.large is the value you are looking for. You can't just return the larger value when the flip happens for the first time, there can be a large range in btween your first smaller and previous larger (or first larger and previous smaller), so you need to keep track on the pre small and pre large until the range goes across, then you've shrinked the range to its minimal and the pre large in this case is your smallest large.
+            
+            coding
+            1. variable name change
+            2. forget to output the result
+      */
+      
+      /*
+            744 find smallest letter larger than the target
+            accepted 64ms 98%
+      */
+      
+      var nextGreatestLetter = function(letters, target) {
+            let nums = letters.map((letter) => { return letter.charCodeAt() }),
+                z = "z".charCodeAt(),
+                a = "a".charCodeAt(),
+                _target = target.charCodeAt();
+            let = j = letters.length - 1;
+            if (_target < nums[0]) {
+                return letters[0];
+            } else if (_target === nums[0]) {
+                return letters[findNextDifferent(nums, 0)];
+            } else if (_target >= nums[j]) {
+                return letters[0];
+            } else {
+                return binarySearch(letters, nums, 0, j, _target, {small: -1, large: -1});
+            }
+        };
+
+
+        function binarySearch(letters, nums, low, high, _target, pre) {
+            if (low > high) {
+                return letters[pre.large];
+            }
+            
+            let mid = low + Math.floor((high - low + 1) / 2);
+            if (nums[mid] === _target) {
+                return letters[findNextDifferent(nums, mid)];
+            } else if (nums[mid] < _target) {
+                pre.small = mid;
+                return binarySearch(letters, nums, mid + 1, high, _target, pre);
+            } else if (nums[mid] > _target) {
+                pre.large = mid;
+                return binarySearch(letters, nums, low, mid - 1, _target, pre);
+            }
+        }
+      
+      function findNextDifferent(nums, index) {
+          let i = index + 1;
+          while (i < nums.length && nums[index] === nums[i]) {
+              i++;
+          }
+          
+          return i === nums.length ? 0 : i;
+      };
+      
+      console.log(nextGreatestLetter(["e","e","e","k","q","q","q","v","v","y"], "f"))

@@ -1,0 +1,34 @@
+/*
+    18. 4Sum
+*/
+
+var fourSum = function(nums, target) {
+    if (!nums || nums.length < 4) {
+        return [];
+    }
+    
+    var allSolutions = [];
+    backtrack(nums, 0, [], allSolutions, target);
+    return allSolutions;
+}
+
+function backtrack(nums, index, solution, allSolutions, target) {
+    if (solution.length === 4) {
+        if (target === 0) {
+            allSolutions.push(solution);
+        }
+        
+        return;
+    }
+    
+    if (index === nums.length) {
+        return;
+    }
+    
+    // there are two options, taking the current index or not
+    solution.push(nums[index]);
+    backtrack(nums, index + 1, solution, allSolutions, target - nums[index], hash);
+    
+    solution.pop();
+    backtrack(nums, index + 1, solution, allSolutions, target, hash);
+}

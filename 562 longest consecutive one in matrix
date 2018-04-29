@@ -1,0 +1,124 @@
+// 562 longest consecutive one in matrix
+// accepted 148ms
+/*
+Input:
+[[0,1,1,0],
+ [0,1,1,0],
+ [0,0,0,1]]
+Output: 3
+*/
+
+/*
+        starting from the right bottom corner, build the solution from right to left, bottom up.
+        
+        the base case is the bottom row and the right most column. the bottom row have only lines from left to right. the right most column have only lines from top down.
+        
+        e.g. 111011100110
+        starting from the first digit on the right, see if the line can be extended. keep track on the longest line
+        
+        e.g. 
+        [[0,1,1,0],
+        [0,1,1,0],
+        [0,0,0,1]]
+        after building the base case, build the solution from bottom up, right to left. at each position, there are 4 possible ways to extend a line, right, down, diagonal or anti-diagonal. keep track on all 4 directions, when a longer line is discovered, update the tracking variable.
+        
+        when reaching the top left item, the longest line of the four directions is the longest.
+*/
+var longestLine = function(M) {
+    var i, j, 
+    rightLongest = 0,  
+    downLongest = 0, 
+    diaLongest = 0,
+    antiDiaLongest = 0,
+        
+    // track each possible line in cache
+    cache = new Array(M.length);
+    for (i=0; i<cache.length; i++) {
+        cache[i] = new Array(M[0].length);
+    }
+    
+    for (i= M.length - 1; i >= 0; i--) {
+        for (j = M[0].length - 1; j >= 0; j--) {  
+            if (M[i][j] === 1) {
+                if (!cache[i][j]) {
+                    cache[i][j] = {};
+                }
+                
+                // right
+                if (M[i][j+1] === 1) { 
+                    cache[i][j].right = cache[i][j+1].right + 1;
+                } else {
+                    cache[i][j].right = 1;
+                }
+                
+                if (cache[i][j].right > rightLongest) {
+                    rightLongest = cache[i][j].right;
+                }
+                
+                // down
+                if (M[i+1] && M[i+1][j] === 1) { 
+                    cache[i][j].down = cache[i+1][j].down + 1;
+                    
+                } else {
+                    cache[i][j].down = 1;
+                }
+                
+                if (cache[i][j].down > downLongest) {
+                    downLongest = cache[i][j].down;
+                }
+                
+                // diagonal
+                if (M[i+1] && M[i+1][j+1] === 1) {
+                    cache[i][j].dia = cache[i+1][j+1].dia + 1;
+                } else {
+                    cache[i][j].dia = 1;
+                }
+                
+                if (cache[i][j].dia > diaLongest) {
+                    diaLongest = cache[i][j].dia;
+                }
+                
+                // anti diagonal
+                if (M[i+1] && M[i+1][j-1] === 1) {
+                    cache[i][j].antiDia = cache[i+1][j-1].antiDia + 1;
+                } else {
+                    cache[i][j].antiDia = 1;
+                }
+                
+                if (cache[i][j].antiDia > antiDiaLongest) {
+                    antiDiaLongest = cache[i][j].antiDia;
+                }
+            } 
+        }
+        
+    }
+    
+    var longest = 0;
+    antiDiaLongest);
+    if (rightLongest > longest) {
+        longest = rightLongest;
+    }
+    
+    if (downLongest > longest) {
+        longest = downLongest;
+    }
+    
+    if (diaLongest > longest) {
+        longest = diaLongest;
+    }
+    
+    if (antiDiaLongest > longest) {
+        longest = antiDiaLongest;
+    }
+    
+    return longest;
+};
+
+/*
+    1. i j should be decreasing (coding issue)
+    2. when checking the down, dia and antiDia directions, first check the next row exist with M[i+1] && (coding issue)
+    3. the logic that resets xxxCur should be when current position and the next position along that direction are both 0. checking the current positon only will lose track of the current line. (algorithm issue)
+    3. the logic that tracks xxxCur need more than one variable for each direction. using a matrix to track these intermedium variables. 
+    4. when using the matric to track the intermedium lines, initialize each tracking object once and update its four lines accordingly. (algorithm issue)
+    5. when extending one line, update the current position instead of the previous postion. cache[i][j].down = cache[i+1][j].down + 1.(coding issue)
+*/

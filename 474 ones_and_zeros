@@ -1,0 +1,65 @@
+// 474 ones and zeros
+/*
+    Input: Array = {"10", "0001", "111001", "1", "0"}, m = 5, n = 3
+    Output: 4
+    5 zero 3 one
+*/
+/*
+    if you have 0 0 1 1 1 1, and ["00", "011", "011"], choose "011" "011" is the longest. this means choosing the shortest doesn't yield the optimal solution.
+    
+    using backtracking, you can try all possibilities to find the optimal solution. it takes exponential time
+    
+    this is a 0-1 knapsack problem, you can either take a string or not. the number of 0 and 1 you can take is the capacity of the knapsack. since each string counts for one string and you are looking for as many strings as possible, each item has the same price.
+*/
+
+var findMaxForm = function(strs, m, n) {
+    var solution = [], cur = [];
+    backtrack(strs, 0, m, m, n, n, cur, solution);
+    
+    var longest = 0, i;
+    for (i = 0; i < solution.length; i++) {
+        if (solution[i].length > longest) {
+            longest = solution[i].length;
+        }
+    }
+    
+    return longest;
+};
+
+// A is the search space
+// index tracks the progress of the backtracking
+// _m, _n are used to determine if a solution is found
+// cur tracks the current solution
+// solution stores all solutions
+function backtrack(A, index, m, _m, n, _n, cur, solution) {
+    // found a solution
+    if (_m === 0 && _n === 0) {
+        solution.push(cur);
+        return;
+    } else if (_m < 0 || _n < 0 || index >= A.length) {
+        var top = cur.pop();
+        solution.push(cur);
+        top.push(top);
+        return;
+    }
+    
+    // otherwise continue the backtracking
+    var ones = 0;
+    for (i = index; i < A.length; i++) {
+        // try the current solution
+        cur.push(index);
+        
+        // backtrack
+        ones = getNumberOfOnes(A[index]);
+        backtrack(A, index+1, m, m - ones, n, n - A[index].length - ones, cur, solution);   
+        
+        // step back
+        cur.pop();
+    }   
+}
+
+/*
+    1. the defination and calculation of _m and _n are not clear. they should be how many 0 and 1 left
+    2. the condition of having found a solution should be _m _n are both 0, or one of them is smaller than 0, or index goes out of boundary
+    3. when iterating the possible options, the counter i should be used
+*/

@@ -1,0 +1,49 @@
+/*
+    784 letter case permutation
+*/
+
+var letterCasePermutation = function(S) {
+            var permutation = [], str = "";
+            backtracking(S, 0, str, permutation);
+            return permutation;
+        };
+
+        function backtracking(S, index, str, permutation) {
+            if (index === S.length) {
+                permutation.push(str);
+                return;
+            }
+
+            backtracking(S, index + 1, str + S[index], permutation);
+            if (!/\d/.test(S[index])) {
+                let flip = flipCase(S[index]);
+                backtracking(S, index + 1, str + flip, permutation);
+            }
+        }
+
+        // upper case starts at 65, lower case starts at 97
+        function flipCase(letter) {
+            let code = letter.charCodeAt(0);
+            if (code >= 65 && code <= 90) {
+                // upper case
+                code += 97 - 65;
+            } else {
+                // lower case
+                code -= 97 - 65;
+            }
+
+            return String.fromCharCode(code);
+        }
+      /*
+      console.log(flip("a"));
+      console.log(flip("z"));
+      console.log(flip("k"));
+      
+      console.log(flip("A"));
+      console.log(flip("Z"));
+      console.log(flip("K"));
+      */
+      
+      console.log(letterCasePermutation("a1b2"));
+      console.log(letterCasePermutation("12345"));
+      console.log(letterCasePermutation(""));

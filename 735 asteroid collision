@@ -1,0 +1,45 @@
+/*
+    accepted 108 ms 
+    92.86%
+*/
+
+/*
+    735 asteroid collision
+*/
+
+var asteroidCollision = function(asteroids) {
+    var stack = [], i, cur;
+    for (i = 0; i < asteroids.length; i++) {
+        cur = asteroids[i];  
+        while (stack.length > 0) {
+            top = stack[stack.length - 1];
+            if (top > 0 && cur < 0 ) {
+                if (top + cur === 0) {
+                    /* both top and cur explode */
+                    stack.pop();
+                    cur = null;
+                    break;
+                }else if (top > cur * (-1)) {
+                    /* cur explode */
+                    cur = null;
+                    break;
+                } else {
+                    /* top explode, cur continue collide with the next element in the stack until the stack is empty or cur is explode, or both (when the last element in the stack is the opposite of cur) */
+                    stack.pop();
+                }
+            } else {
+                /* top < 0 || top > 0 && cur > 0 */
+                stack.push(cur);
+                cur = null;
+                break;
+            } 
+        }
+        
+        if (cur) {
+            stack.push(cur);
+        }
+    }
+    
+    return stack;
+    
+};

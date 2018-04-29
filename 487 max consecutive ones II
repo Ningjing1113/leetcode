@@ -1,0 +1,66 @@
+/*
+    accepted 116ms 100%
+    487 max consequtive ones II
+*/
+
+var findMaxConsecutiveOnes = function(nums) {
+    if (!nums || nums.length === 0) {
+        return 0;
+    }
+    
+    //console.log(nums);
+    var max = {val: 0};
+    _recurse(nums, 0, 0, max);
+    return max.val;
+}
+
+function _recurse(nums, i, k, max) {
+    var j;
+    while (i < nums.length && nums[i] === 0) {
+        i++;
+    }
+    
+    //console.log("i is: " + i);
+    if (i === nums.length) {
+        updateMax(max, 1);
+        return;
+    } 
+    
+    if (k <= i) {
+        k = i + 1;
+        while (k < nums.length && nums[k] === 1) {
+            k++;
+        }
+
+        //console.log("k is: " + k);
+        if (k === nums.length) {
+            if (i === 0) {
+                updateMax(max, k - i);
+            } else {
+                updateMax(max, k - i + 1);
+            }
+            
+            return;
+        }    
+    }
+     
+    //console.log("k is: " + k);
+    j = k + 1;
+    while (j < nums.length && nums[j] === 1) {
+        j++;
+    }
+
+    //console.log("j is : " + j);
+    updateMax(max, j - i);
+    if (j === nums.length) {
+        return;
+    }
+    
+    _recurse(nums, k+1, j, max);
+};
+
+function updateMax(max, length) {
+    if (max.val < length) {
+        max.val = length;
+    }
+}

@@ -1,0 +1,60 @@
+/*
+    416 partition equal subset sum
+*/
+/*
+    find the target number and try to up to this number
+    sort the array and try to find the target by adding up the left and right
+    backtracking
+*/
+
+var canPartition = function(nums) {
+    var hash = {}, found = {val: false}, target = 0, i;
+    hash[0] = true;
+    for (i = 0; i < nums.length; i++) {
+        target += nums[i];
+    }
+    
+    if (target % 2 !== 0) {
+        return false;
+    }
+    
+    addUpToTarget(nums, 0, hash, target / 2, found);
+    return found.val;
+};
+
+function addUpToTarget(nums, index, hash, target, found) {
+    if (target === 0) {
+        found.val = true;
+        return;
+    } else if (target < 0 || index === nums.length) {
+        return;
+    }
+    
+    // use the current number. if the diff number exists already or we can find it, we've found the target
+    if (hash.hasOwnProperty(target - nums[index])  || addUpToTarget(nums, index + 1, hash, target - nums[index], found)) {
+        hash[target] = true;
+        found.val = true;
+        return;
+    } 
+    
+    // do not use the current number. try to find the target starting from the next number
+    addUpToTarget(nums, index + 1, hash, target, found)
+    if (found.val) {
+        hash[target] = true;
+    }
+}
+
+/*
+    bug:
+    1. target is not initialized. for numbers, uninitialized value will be NaN.
+    2. the algorithm is correct but exceeds the time limits when run on large data set
+*/
+
+function canPartition = function (nums) {
+    if (!nums || nums.length === 0) {
+        return false;
+    }
+    
+    nums.sort();
+    
+}

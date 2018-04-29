@@ -1,0 +1,135 @@
+/*
+    accepted 132ms
+    333 largest BST subtree
+*/
+
+/*
+    post order traverse
+    binary search tree
+    cut subproblem/solution
+*/
+/*
+    there is no such thing called pre-order, in-order or post-order. once you are at a certain tree node, you always have access to this node and its children (if exist). you can visit these nodes in any order, more than once if needed. especially if you want to do more than just visiting, but analyze the structure of the tree, it doesn't really matter what you call it. 
+    
+    the real order that matters depends on the problem you are trying to solve. in this case, you want to find out if the current node is a rot of a binary search tree, then you need to check both left tree and right tree, they both need to comply with the binary search tree definition. however, if you can terminate early when the current node is not the root of a binary search tree, you don't have to traverse the entire left and right tree. you can terminate the traverse (recursion) as long as there is a voilation of the binary tree definition.
+*/
+/*
+    traverse the left tree, save the traverse data
+    traverse the right tree, save the traverse data
+    see if you can combine left tree, current node and right tree to be a binary search tree
+*/
+/*
+    top-down approach:
+    By passing down the upper bound and lower bound, you can handle the case when the violation is between direct parent and children; however, if the violation is between an ancestor and a descendant, you will miss the binary search held by the descendant node. e.g., [ 3, 1, 2, null, 4 ] the violation is between 1 and 2, since you are checking the violation at 1, you will reset the upper and lower bound for 2. in case of [3, 2, 4, null, null, 1] the violation is between 3 and 1, but 3 to 4 and 3 to 1 all pass the checking. By passing down upper bound and lower bound, you can check whethr the entire tree is a binary search tree or not, but you can't force a binary search sub tree to respect the upper bound and lower bound range. you will capture it when the violation is between parent and children, but you won't be able to handle the violation between ancestors and descendants.
+    
+    bottom-up approach:
+    the right way of seeing this problem is to build binary search tree from bottom up. leaf node as the base case is a binary search tree, then we see if we can append an existing binary search tree as the left or right tree of the parent node. Instead of passing down upper bound and lower bound, we need to report the range of left or right tree if it is a binary search tree. would you have the similar issue when the violation is across generations? no, because you start with the smallest binary search tree and the range you reported to the ancestor will have the min and max node values in the sub binary search tree, that's all you need to see if you can extend the current binary search tree. if you can't extend at one level, you can be sure that going up, you won't have a binary search tree, so you can "cut" a binary search sub tree and compare the size with the max. On the other hand, from top down, a violation at one level doesn't mean you can't have a binary search tree downwards, complying at a one level doesn't mean it won't violate on the upper level. the problem is if you are only checking between parent and children, you will miss the binary search sub trees that respect their parent but not their ancestors.
+*/
+
+var largestBSTSubtree = function(root) {
+  if (!root) {
+    return 0;
+  }
+  
+  var data = {min: -Infinity, max: +Infinity, count: 0, isBST: false}, maxSubTree = {count: 1}; 
+  _recurse(root, data, maxSubTree);
+  return maxSubTree.count;
+};
+
+function _recurse(root, data, maxSubTree) {
+  if (!root) {  
+    return;
+  }  
+  
+  _recurse(root.left, data, maxSubTree);
+  if (data.isBST) {
+    _updateCount(data.count, maxSubTree);
+  }
+  
+  var _leftMin = data.min, _leftMax = data.max, _isLeftBST = data.isBST, _leftCount = data.count;
+  _resetData(data);
+  
+  _recurse(root.right, data, maxSubTree);
+  if (data.isBST) {
+    _updateCount(data.count, maxSubTree);
+  }
+  
+  if (root.left) {
+    if (root.val > _leftMax) {
+        if (root.right) {
+            if (root.val < data.min) {
+                data.count += _leftCount + 1;
+                data.isBST = true;
+                data.min = _leftMin;
+                _updateCount(data.count, maxSubTree);
+            }
+        } else {
+            data.count = _leftCount + 1;
+            data.isBST = true;
+            data.min = _leftMin;
+            data.max = root.val;
+            _updateCount(data.count, maxSubTree);
+        }
+    } else {
+        _resetData(data);
+    }
+  } else if (root.right) {
+    if (root.val < data.min) {
+        data.count++;
+        data.isBST = true;
+        data.min = root.val;
+        _updateCount(data.count, maxSubTree);
+    } else {
+        _resetData(data); 
+    }
+  } else {
+    data.min = root.val;
+    data.max = root.val;
+    data.count = 1;
+    data.isBST = true;
+  }
+}
+
+function _resetData(data) {
+    data.min = -Infinity;
+    data.max = Infinity;
+    data.count = 0;
+    data.isBST = false;
+}
+
+function _updateCount(count, maxSubTree) {
+    if (maxSubTree.count < count) {
+        maxSubTree.count = count;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,44 @@
+/*
+    accepted 84ms 88%
+    75 sort color
+*/
+
+var sortColors = function(nums) {
+    var low = partition(nums, 0, 1);
+    partition(nums, low, 2);
+};
+
+function partition(nums, low, pivot) {
+    var i, j;
+    i = low;
+    while (i < nums.length && nums[i] < pivot) {
+        i++;
+    }
+    
+    // i is pointing at the first element that is >= pivot
+    if (i >= nums.length) {
+        return i;
+    }
+    
+    j = i;
+    while (j < nums.length) {
+        if (nums[j] < pivot) {
+            swap(nums, i, j);
+            i++;
+        }
+        
+        j++
+    }
+    
+    return i;
+}
+
+function swap(nums, i, j) {
+    if (i ===j || nums[i] === nums[j]) {
+        return;
+    }
+    
+    var temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+}

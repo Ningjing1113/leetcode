@@ -1,0 +1,52 @@
+/*
+    418. sentence screen fitting
+*/
+/*
+    how many times the given sentence can be fit into the screen
+    Input:
+    rows = 4, cols = 5, sentence = ["I", "had", "apple", "pie"]
+
+    Output: 
+    1
+
+    Explanation:
+    I-had
+    apple
+    pie-I
+    had--
+    
+    you can fit into each row as many as cols letters, depends on the length of your current word and the available columns of your current row, you can easily find out whether you are able to fit the current word.
+    
+    you will come back to the same problem if you just fit your current word in the current row (and you can't fit the next word). now starting from the next row, it's basically the same problem with less word, less rows but the same number of columns in each row.
+    
+    notice each line will always starts with a word in the sentence since we can't break words. if we calculate starting with each word, how many word each line can fit. i.e.,  
+    word 0 1 2 3
+    lines2 1 1 2
+    
+    with this array, we start from word 0, according to how many words we can fit into one line, we just to the word that we must fit into the next line, increasing the number of words we've fitted so far while tracking the number of lines we used. each time we fit one line, we increase the number of words currently fitted, mod that value by the length of the sentence array will tell us how many times we can fit the whole sentence. the processing stops when we run out of rows, the current number of sentences we can fit is the answer.
+*/
+
+var wordsTyping = function(sentence, rows, cols) {
+    var i, lines = [];
+    for (i = 0; i < sentence.length; i++) {
+        cur = sentence[i];
+        let k = 0, j = i, wordCounter = 0;
+        while (k + sentence[j].length <= cols) {
+            k += sentence[j].length + 1;
+            j = j++ % sentence.length;
+            wordCounter++;
+        }
+        
+        lines.push(wordCounter++);
+    }
+    
+    var lnCounter = 0, wrdCounter = 0, stcCounter = 0, index = 0; 
+    while (lnCounter < row) {
+        wrdCounter += lines[index];
+        index = (index + lines[index] - 1) % sentence.length;
+        stcCounter = wrdCounter % sentence.length;
+        lnCounter++;
+    }
+    
+    return stcCounter;
+};

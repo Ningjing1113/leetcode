@@ -1,0 +1,43 @@
+/*
+    439 ternary expression parser
+    
+    F?1:T?4:5
+    T?T?F:5:3
+    F?F?F:5:3
+    T?F?F:5:3
+*/
+
+/*
+    you will always have T or F before ?, so whenever you see a ?, you will know which side (left or right) of the : needs to be evaluated.
+    
+    you can pass in a range into a recursion function to evaluate the expression until the rage has only one number left and that is your final result.
+    
+    devide and conquor. the letter before ? will devide the expression, one of the sub expression will be evaluated
+    
+    you can go through the expression in one pass and use "collision" to find the final result.
+*/
+
+var parseTernary = function(expression) {
+    var stack = [], i, cur;
+    for (i = 0; i < expression.length; i++) {
+        cur = expression[i];
+        if (cur === "?") {
+            stack.push(expression[i - 1]);
+        } else if (cur === ":") {
+            leftExp = expression[i-1];
+            while (stack.length > 0 && stack[stack.length - 1] === "T") {
+                stack.pop();
+            }
+            
+            if (stack.length === 0) {
+                return leftExp;
+            } else {
+                // the next evaluated expression will be tested against the TF stack
+                stack.pop();
+            }
+        }
+    }
+    
+    // if you reach this far, the last sub expression will be your result
+    return expression[i - 1];
+}

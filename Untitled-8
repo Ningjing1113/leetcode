@@ -1,0 +1,105 @@
+/*
+    317 shortest distance from all buildings
+*/
+
+/*
+    1 - 0 - 2 - 0 - 1
+    |   |   |   |   |
+    0 - 0 - 0 - 0 - 0
+    |   |   |   |   |
+    0 - 0 - 1 - 0 - 0
+    
+    start from each empty land, do a BFS until you've reached a obstacle, gone off the grid, or reached a room. when reached a move, keep track of the distance from your initial empty land to this room.
+    
+    after BFS from each empty land, compare the total distance with the min distance (initialize the min total distance can be Infinity).
+    
+    notice that it's possible that some empty land is not able to reach all houses, so in this case, the distance should be Infinity. To check this, you can calculate how many hourse you need to reach before searching, minus one whenever you've reached a hourse, if by the end of the BFS, you have hourses that are not reached. this empty land can't be used.
+    
+    also notice that you will have to go through other empty land even if you are only searching for one single empty land at a time. Does that mean you can cache the distance and reuse it? it depends on the relative position of the hourse to your empty land. for example, if the hourse is on the upper left corner of your empty land, a empty land closer to that direction may be reused, but it is not guranteed as you can have varies of obstacles. for example, if the empty land on the left are surrounded by obstacles and its only way to get around is by going to the right first, then you won't be able to reuse this land on the left, actually you've been used by it to reach hourses. so this problem doesn't have the optimal structure that allows you to build up your solution ground up. basically, until you've searched through the grid, you never know which one will give you the shortest path.
+*/
+
+var shortestDistance = function(grid) {
+  var maxRow = grid.length, maxCol = grid[0] && grid[0].length, i, j, houses = 0, point = [], min = Infinity;
+  grid.maxRow = maxRow;
+  grid.maxCol = maxCol;
+  
+  for (i = 0; i < maxRow; i++) {
+    for (j = 0; j < maxCol; j++) {
+        if (grid[i][j] === 1) {
+            house++;
+        }
+    }
+  }
+  
+  var totalDistance = {val: 0};
+  for (i = 0; i < maxRow; i++) {
+    for (j = 0; j < maxCol; j++) {
+        if (grid[i][j] === 0) {
+            
+            BFS(grid, i, j, totalDistance, houses);
+            if (totalDistance.val < min) {
+                min = totalDistance.val;
+                point = [i, j];
+            }
+            
+            totalDistance.val = 0;
+        }
+    }
+  }
+  
+  return point;
+};
+
+function BFS(grid, i, j, totalDistance, hourses) {
+    var queue = [], cur, step = {distance: 1};
+    queue.push({row: i, col: j});
+    while (queue.length > 0) {
+        cur = queue.shift();
+        var distance = (cur.distance ? cur.distance : 0) + 1;
+        if (cur.row - 1 >= 0) {
+            if (grid[cur.row - 1][cur.col] === 0 || grid[cur.row - 1][cur.col].distance > 0) {
+                grid[cur.row - 1][cur.col] = {distance: distance + 1}
+                queue.push({row: cur.row - 1, col: cur.col});
+            } else if (grid[cur.row - 1][cur.col] === 1) {
+                hourses--;
+                totalDistance.val += cur.distance + 1;
+            }
+        }
+        
+        // right
+        // down
+        // left
+    }
+    
+    if (hourses > 0) {
+        totalDistance.val = Infinity;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

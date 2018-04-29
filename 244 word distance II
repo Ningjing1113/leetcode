@@ -1,0 +1,54 @@
+/*
+    244 word distance II
+*/
+
+function binarySearch(arr, target, low, high, closest) {
+    if (low > high) {
+        return -1;
+    }
+    
+    var mid = low + Math.floor((high - low + 1) / 2);
+    closest.val = mid;
+    if (arr[mid] === target) {
+        return;
+    } else if (arr[mid] < target) {
+        return binarySearch(arr, target, mid+1, high, closest);
+    } else {
+        return binarySearch(arr, target, low, mid - 1, closest);
+    }
+}
+
+function shortestWordDistance(dict, word1, word2) {
+    var hash = {};
+    dict.forEach((word, i) => {
+        if (!hash.hasOwnProperty(word)) {
+            hash[word] = [];
+        }
+        
+        hash[word].push(i);
+    });
+    
+    let index1 = hash[word1], index2 = hash[word2];
+    if (index1 === undefined || index2 === undefined) {
+        return -1;
+    }
+    
+    if (index1.length === 1 && index2.length === 1) {
+        return Math.abs(index1[0] - index2[0]);
+    }
+    
+    let maxDistance = 0, closest = {val: 0}, temp;
+    if (index1.length > index2) {
+        temp = index1;
+        index1 = index2;
+        index2 = temp;
+    }
+    
+    index1.forEach(i => {
+        binarySearch(index2, i, 0, index2.length - 1, closest);
+        maxDistance = Math.max(maxDistance, Math.abs(i - closest.val));
+    });   
+    
+    return closest.val;
+}
+

@@ -1,0 +1,87 @@
+ /*
+    688 knight probability
+*/
+
+var knightProbability = function(N, K, r, c) {
+    if (N < 3) {
+        return 0;
+    }
+    
+    var prob = {val: 1}, step = 1;
+    backtracking(N, K, r, c, prob, step);
+    return prob.val;
+}
+
+function backtracking(n, k, row, col, prob, step) {
+    if (step > k) {
+        return;
+    }
+    
+    
+    
+    
+    
+    var candidate = findCandidateMoves(n, row, col), i, sumProb = 0;
+    for (i = 0; i < candidate.length; i++) {
+        cur = candidate[i];
+        backtracking(n, k, cur.row, cur.col, prob, step + 1);
+        sumProb += prob.val;
+        prob.val = 1;
+    }
+    
+    prob.val = sumProb * (1/k);
+}
+
+function findCandidateMoves(n, r, c) {
+    var candidate = [];
+    // left
+    if (c - 2 >= 0) {
+        if (r - 1 >= 0) {
+            candidate.push({row: r - 1, col: c - 2});
+        }
+        
+        if (r + 1 < n) {
+            candidate.push({row: r + 1, col: c - 2});
+        }
+    }
+    
+    // up
+    if (c + 2 < n) {
+        if (r - 1 >= 0) {
+            candidate.push({row: r - 1, col: c + 2});
+        }
+        
+        if (r + 1 < n) {
+            candidate.push({row: r + 1, col: c + 2});
+        }
+    }
+    
+    // right
+    if (r - 2 >= 0) {
+        if (c - 1 >= 0) {
+            candidate.push({row: r - 2, col: c - 1});
+        }
+        
+        if (c + 1 < n) {
+            candidate.push({row: r - 2, col: c + 1});
+        }
+    }
+    
+    // down
+    if (r + 2 >= 0) {
+        if (c - 1 >= 0) {
+            candidate.push({row: r + 2, col: c - 1});
+        }
+        
+        if (c + 1 < n) {
+            candidate.push({row: r + 2, col: c + 1});
+        }
+    }
+}
+
+/*
+    Bugs and issue:
+    1. when looking for candidates, the logic that checks up direction is wrong dur to copy paste issue
+    2. the base case is defined incorrectly, it should be when step is k, return (number of candidate) / 8
+    3. related to 2., the divider should be 8 because at step you have at most 8 moves, the number of valid moves is candidate.length
+*/

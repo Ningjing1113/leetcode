@@ -1,0 +1,53 @@
+/*
+    127 word ladder
+*/
+
+var ladderLength = function(beginWord, endWord, wordList) {
+    var visited = {}, min = {val: Infinity};
+    backtracking(wordList, beginWord, endWord, visited, 0, min);
+    return min.val === Infinity ? 0 : min.val;
+};
+
+function backtracking(wordList, cur, endWord, visited, step, min) {
+    if (cur === endWord) {
+        min.val = Math.min(min.val, step);
+        return;
+    }
+    
+    let candidates = findCandidates(wordList, cur, visited);
+    candiates.forEach(index => {
+        let word = wordList[index];
+        visited[word] = true;
+        backtracking(wordList, word, endWord, visited, step + 1, min);
+        visited[word] = false;
+    });
+}
+
+function findCandidates(wordList, cur, visited) {
+    var candidates = [];
+    wordList.forEach((word, i) => {
+        if (!visited[word] && diff(cur, word) === 1) {
+            candidates.push(i);
+        }
+    });
+    
+    return candidates;
+}
+
+function diff(w1, w2) {
+    if (w1.length !== w2.length) {
+        return false;
+    }
+    
+    let diff = 0;
+    for (let i = 0; i < w1.length; i++) {
+        if (w1[i] !=== w2[i]) {
+            diff++;
+            if (diff > 1) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}

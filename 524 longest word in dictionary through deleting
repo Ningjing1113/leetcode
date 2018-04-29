@@ -1,0 +1,91 @@
+/*
+    accepted 184ms 31% (use indexof is faster but it's cheating)
+    524 longest word in dictionary through deleting
+    
+*/
+
+/*
+    algorithm:
+    s = "abpcplea", d = ["ale","apple","monkey","plea"]
+    find the longest subsequence (not substring) of the given string from the dictionary. you can go through the strings in the dictionary one by one and try to match each string with the given string to see if it's subsequence of it, if so, compare the string's length with the current longest, replace if it's longer or of equal length but have smaller lexical order.
+    
+    to find whether a string in the dictionary is a subsequence of the given string. you can set up two pointers, i.e., i at the current string, j at the given string. for each i, idealy you want to be able to find it in the given string by moving j from left to right, if j === s.length but you still haven't matched everything letter yet, then the current string is not sub sequence of the given string.
+    
+    one coding detail is, once you start scanning in the given string, once you've found a match, you j will be pointing at that exact match. you need to move j one step ahead so you can start matching the next letter pointing by i.
+    
+    another coding detail is, if your current string's last letter matches with the given string's last letter, can you handle it.
+    
+    the structure of the code will look like:
+    for () {
+        while () {
+        
+        }
+        
+    }
+*/
+
+var findLongestWord = function(s, d) {
+    var i, j, k, maxLength = 0, sub = "", mismatch = false, cur;
+    for (k = 0; k < d.length; k++) {
+        cur = d[k];
+        if (!cur || cur.length === 0 || cur.length > s.length) {
+            continue;
+        } 
+        
+        // start matching
+        i = 0, j = -1, mismatch = false;
+        for (i = 0; i < cur.length; i++) {
+            
+            while (j < s.length) {
+                j++;
+                if (s[j] === cur[i]) {
+                    break;
+                } 
+            }
+            
+            if (j === s.length) {
+                mismatch = true;
+                break;
+            }
+        }
+        
+        if (!mismatch) {
+            if (cur.length > maxLength) {
+                maxLength = cur.length;
+                sub = cur;
+            } else if (cur.length === maxLength) {
+                sub = sub < cur ? sub : cur;
+            }
+        }
+    }
+    
+    return sub;
+}
+
+var results = [], s = "abpcplea", d = ["ale","apple","monkey","plea"];
+//results.push(findLongestWord(s, d));
+d = ["ale","aple","monkey","plea"];
+//results.push(findLongestWord(s, d));
+s = "aaa", d = ["aaa", "aa", "a"];
+//results.push(findLongestWord(s, d));
+//console.log(results);
+      
+      /*
+            defect report:
+            algorithm
+            1. mismatch is to each work in the dictionary, not each letter in one word, setting mismatch to false to each word outside of the inner for loop on i
+            coding
+            1. forget to update maxLength when a longer sub sequence is found
+            
+            edge case
+            1. when a word in the dictionary is an exact match of the given string, it is the also the longest sub sequence.
+            
+            typo
+            1. forget to update the variable name from match to sub 
+      */
+
+s  = "okbmfyugqqongobwofraotanviqjraaktmmwyxzdnnwwaqsnvfxwngglybtiqwblprgvbgmolotnppzbovnstxmcmocixresdpojmntcdkyjzgbhhigkiyatrgzayivjyqiopvvdftkbsgwgnidsecvydvltaxxywydawrsseyolixznuyhjolngdsmjhepregixtklanjjggzssrbtmhhpamcfeghgssmrjrpelabojfhkdfvscjwhqxubwrhryqmtkiksljezeembngdjyhgmdzahxvvpkqwvhkqlensuxbrcdctqojqnlogjbpovdsbvurwcoehtmtkwxswrwhszuyesdqspnwqxlmjxrbdqbnbbyxhhlabxrdjxtjgpugojsexmrhrfzryapdzglalqzuzfpxeaemjkyfhpbnmdxjtxnxyjecfsapcjyglmtivnsfalpxzdkylgcixjljaqjwminyaodeekpzzpchhceguzayeul";
+      d = ["xcjigjydkponyjablqgulfhcyzbtbdocvsxzwzdabvbnzxzxcawydbbsuexdxpvmtjcxdgdcdxgccjfciphjmubucghqfqoqqugnvbblziedkifhyrkzugorbalkggrhingdsnfnvbofjunyuzjfmnpqloxtshyxyaavbskikosutlqeljnycostvxqviixgspazzitxhiujcqnatfwechwzuoxxwibszywniscleusciwjvcfcocneuaizzgluudughrvgozsgvrpcwsjzivzpbzfjqshrdckfcxjsgwcrhcmntpkezibuegxduskenhrhuayysefshuwokduoaibwpcrssypqflhqeipzsyiycrbtblfnwozngtcddepfxyhvfjcoxytxqkfgzduzzjjqdauxxgjhxqaewlihotqibnskdluickwaakwvopgatumfndzcjieoncdwmhfgpvtegeawueivtnyumvwxuzfcaxeuremvv"];
+console.log(`s length: ${s.length} d[0] length: ${d[0].length}`);
+results.push(findLongestWord(s, d));
+console.log(results);

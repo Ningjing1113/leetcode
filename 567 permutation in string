@@ -1,0 +1,144 @@
+/*
+    accepted 84ms 100%
+    567 permutation in string
+*/
+
+/*
+    Algorithm:
+    if s2 contains a permutation of s1, it must be a consecutive sequence in s2. you can build a hash table from s1, then go through s2, whenever you see a letter in s2 that exists in s1, you setup a pointer i, and send another pointer j from i. you try to subtract the s2[j] if it exists in s1, you either come to a letter that doesn't exist in s1, or you've found a permutation or you've reach the end of s2 when j === s2.length (in the case the last letter of s2 is in the permutation, you will discover it before j). in the case the consecutive sequence breaks before it completes a permutation of s1, you need to recalculate the permutation starting from j + 1 (of course if it's less than s2.length) if s2[j] doesn't exist in s1; or if it exists in s1 but you've counted enough of this letter, you should start from the position right after where this letter is first discovered so you don't have to look through those letter in between i and j that are already part of the permutation. for this purpose, you need to keep track on the postion of each letter in s2.
+    
+    whenver you update i, you are starting a new round of matching, you can wrap the matching in a function or you can wrap the entire matching inside while (i < s2.length && j < s2.length) (notice that you need to re-check j < s2.length everytime you increase j from the inside loop). while you are matching s1 in s2, whenver you found a matched letter, besides subtracting it from s1's hash, you can add this letter's location into another hash, so you can easily leap forward when j mismtach. when you leap forward, let's say your i should leap forward to k ( i <= k <= j), you need to add those letters between i to k - 1 back to s1's hash, and remove them from s2's hash.
+*/
+
+var checkInclusion = function(s1, s2) {
+    // strings only contain lower case letter
+    // length of the string is between 1 to 10,000 inclusive
+    if (s1.length > s2.length) {
+        return false;
+    }
+    
+    var i = 0, j = 0, nonmatched = {}, matched = {}, matchedCounter = 0;;
+    for (i = 0; i < s1.length; i++) {
+        if (!nonmatched.hasOwnProperty(s1[i])){
+            nonmatched[s1[i]] = 0;
+        }
+        
+        nonmatched[s1[i]]++;
+    }
+    
+    i = 0;
+    while (i < s2.length && !nonmatched.hasOwnProperty(s2[i])) {
+        i++;
+    }
+    
+    if (i === s2.length) {
+        return false;
+    } 
+    
+    j = i;
+    while (i < s2.length && j < s2.length) {
+        var cur = s2[j];
+        if (nonmatched.hasOwnProperty(cur)) {
+            if (nonmatched[cur] > 0) {
+                //match
+                matchedCounter++;
+                nonmatched[cur]--;
+                if (!matched[cur]) {
+                    matched[cur] = [];
+                }
+                
+                matched[cur].push(j);
+                if (matchedCounter === s1.length) {
+                    return true;
+                }
+                
+                j++;
+            } else {
+                /* mismatch, cur exist in s1 but it's redundant, start from right after the first cur in s2, k, to reuse what's in between k and j inclusive
+                */
+                var k = matched[cur][0];
+                while(i <= k) {
+                    matchedCounter--;
+                    nonmatched[s2[i]]++;
+                    matched[s2[i]].shift();
+                    i++;
+                }
+            }
+        } else {
+            // mismatch, cur doesn't exist in s1, start from j + 1
+            while (i < j) {
+                matchedCounter--;
+                nonmatched[s2[i]]++;
+                matched[s2[i]].shift();
+                i++
+            }
+            
+            i = j+1;
+            j = i;
+        }
+    }
+    
+    return false;
+}
+    
+    var results = [];
+    results.push(checkInclusion("ab", "eidbaooo"));
+    results.push(checkInclusion("aba", "eidbabaooo"));
+    results.push(checkInclusion("ab", "eidacba000"));
+    results.push(checkInclusion("abcd", "eiabceabced"));
+    console.log(results);
+    
+    /*
+        Defect report:
+        Algorithm:
+        1.
+        
+        Coding detail (over boundary, deadloop, incorrect pointer):
+        1. when you need to advance i to k when j is pointing at a redundant letter. in this case, the while loop condition should be i <= k because you actually exclude k and starts right after it. otherwise you will have deadloop.
+        
+        2. since you've shifted the letter at k (in s2) before the while loop and you are using <=, you will shift for the second time. but you won't get into trouble if you only have one letter because the second shift won't do anything, but if you have more than 1 letter in matched[s2[j]], you will lose one of them. so don't shift outside of the while loop.
+        
+        Edge case:
+        1.
+        
+        Typo:
+        1. hasOwnProperty instead of hashOwnProperty
+        
+        Runtime error (compile error):
+        1.
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

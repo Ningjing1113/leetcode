@@ -1,0 +1,95 @@
+/*
+    accepted: 98 ms 100%
+    655 Print Binary Tree
+*/
+
+/*
+    when layer = 1, you need 1 columns. when layer = 2, you need 3 columns. Turns out, if w(n) is the number of columns, n is the number of layers. w(n) = 2w(n) + 1, w(1) = 1. you can do a DFS to calculate the number of layer and build the matrix.
+    
+    for each node, you can view it as placing the node at the same row (the matrix row number is the same as the tree's layer number) and the middle column of either the entire row of left/right side of the row splitting from the middle(the number of columns is odd number). so placing a node is essentially the same problem on different scale. if you do BFS (layer by layer), you will be able to place the nodes layer by layer.
+*/
+
+var printTree = function (root) {
+    if (!root) {
+        return [];
+    }
+    
+    var col = 1, layer = 1, s = [], cur;
+    root.layer = layer;
+    s.push(root); 
+    
+    while (s.length > 0) {
+        cur = s.pop();
+        if (cur.layer > layer) {
+            layer = cur.layer;
+            col = 2 * col + 1;
+        }
+        
+        if (cur.left) {
+            cur.left.layer = cur.layer + 1;
+            s.push(cur.left);
+        }
+        
+        if (cur.right) {
+            cur.right.layer = cur.layer + 1;
+            s.push(cur.right);
+        }
+    }
+    
+    var matrix = new Array(layer);
+    for (i = 0; i < layer; i++) {
+        matrix[i] = new Array(col);
+        for (j = 0; j < col; j++) {
+            matrix[i][j] = "";
+        }
+    }
+    
+    /*
+    width is the window size of the current layer, shift is starting from the parent node in the above row, how many steps to move to reach the middle of the next window. notice that starting from the parent node's column, you are outside of the window of the next row, so for the root, we start from -1.
+    */
+    var width = col, shift = (width + 1)/2, layer = 0;
+    root.col = -1 + shift;
+    s.push(root);
+    while (s.length > 0) {
+        cur = s.shift();
+        if (cur.layer > layer) {
+            layer = cur.layer;
+            width = (width - 1)/2;
+            shift = (width + 1)/2;    
+        }
+        
+        matrix[cur.layer - 1][cur.col] = cur.val + "";
+        if (cur.left) {
+            cur.left.col = cur.col - shift;
+            s.push(cur.left);
+        }
+        
+        if (cur.right) {
+            cur.right.col = cur.col + shift;
+            s.push(cur.right);
+        } 
+        
+        delete cur.layer;
+        delete cur.col;
+    }
+    
+    return matrix;
+}
+
+/*
+    code walk through:
+    1. checked variable refrence, empty tree, single node tree
+    2. forget to shift the cur node from the queue.
+    
+    case walk through:
+    1. 
+    2. Math.ceil should be replaced by Math.floor, in js, 15/2 is 7.5
+    
+    Bug:
+    1. variable refrence issues, in tree problems, be careful of cur.left and cur.right is referencing the correct child. 
+    2. when using a stack to do a pre order traverse, prepare the root and push it to the stack, then use variable cur to access each node. same as layer by layer traverse using a queue.
+    3. the logic that places the number in the matric is wrong for the right child. you were using cur.col + (col - cur.col/2), this only calculate the column of the right most node, because the span ends at col, which is the last column of the row. the correct way is start from cur.col, move half of the size of the current window, which can be calculated by layer, to the left to locate cur.left, to the right to locate cur.right. this is the result of developing an algorithm from simply case and didn't capture the general algorithm. so try to draw bigger trees next time.
+    4. when calculating the shift, you only need to do it when the layer changes, not for each node. also notice that you are calculating for the next layer so you can assign the col attribute to the children nodes, but you can also do it with the current layer without assigning any attribute to the children.
+    5. an case shows the layer calculation in the first DFS is wrong. you are using current layer variable instead of the cur.layer to calculate the layer of the children node, which is wrong, because in DFS, the traverse reaches the bottom of the tree and goes back, so layer will be greater than some of node's actually layer. take some time to go over tree traversal, and depth (layer), as well as calculating mid point in an array.
+*/
+

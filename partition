@@ -1,0 +1,33 @@
+ // increase by 1
+ 1 1 1 1 i = 0
+ 2 1 1   i = 1
+ 2 2 
+ 
+ // increase by 2
+ 3 1     i = 0
+ 
+ // increase by 3
+ 4
+ 
+ var partition = function(n) {
+     var s, _s, partition = [];
+     _s  = new Array(n);
+     _s.fill(1);
+     
+     for (let i = 1; i < n; i++) {
+        s = _s;
+        for (let j = 0; j < s.length - 1; j++) {
+            s[j] += i;
+            for (let k = 0; k < i; k++) {
+                s.pop();
+            }
+
+            partition.push(s.reduce((str, x) => {
+                return str += x;
+            }));
+        }
+     }
+ }
+ 
+ console.log(partitio(4));
+ 

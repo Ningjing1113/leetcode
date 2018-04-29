@@ -1,0 +1,37 @@
+/*
+    198 house robber
+*/
+
+var rob = function(nums) {
+    if (!nums || nums.length === 0) {
+        return 0;
+    }
+    
+    var grid = new Array(nums.length), i, j; 
+    for (i = 0; i < grid.length; i++) {
+        grid[i] = new Array(nums.length + 1);
+        for (j = 0; j < grid[i].length; j++) {
+            if (i === j - 1) {
+                grid[i][j] = nums[i];
+            } else {
+                grid[i][j] = 0;
+            }
+            
+        }
+    }
+    
+    var length;
+    j = 0;
+    for (length = 2; length <= nums.length; length++) {
+        for (i = 0; i < nums.length; i++) {
+            j = i + length;
+            if ( j > nums.length) {
+                break;
+            }
+            
+            grid[i][j] = Math.max(nums[j - 1] + grid[i][j - 2], grid[i][j - 1]);
+        }
+    }
+    
+    return grid[0][nums.length];
+};

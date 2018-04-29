@@ -1,0 +1,50 @@
+/*
+    accepted 112ms 100%
+    3 longest substring without repeating characters
+*/
+
+var lengthOfLongestSubstring = function(s) {
+    if (!s || s.length === 0) {
+        return 0;
+    }
+    
+    var hash = {}, i, j, cur, max = 0;
+    i = 0, j = i;
+    while (j < s.length) {
+        cur = s[j];
+        if (!hash.hasOwnProperty(s[j])) {
+            hash[cur] = j;
+        } else {
+            let pre = hash[cur];
+            if (j - i > max) {
+                max = j - i;
+            }
+            
+            while(i < pre + 1) {
+                delete hash[s[i]];
+                i++;
+            }
+            
+            hash[cur] = j;
+        } 
+        
+        j++;
+    }
+    
+    if (j - i > max) {
+        max = j - i;
+    }
+    
+    return max;
+};
+
+/*
+    defect report:
+    
+    algorithm:
+    1. forget to clear the hash while moving pointer i to the new location
+    2. a little bit confusion of when pointer j should be increased. actually, you always want to increase pointer j in this case because when you find a existing letter at j, besides moving i and clearing the hash, you also added j into the hash using hash[cur] = j. if you don't add the letter at j to the hash, and don't increase j, next round of the while loop, it will be added anyway. it's your choice either to add or not add letter at j when it's first discovered.
+    
+    note:
+    you will need one last check j - i > max when j goes beyond s (when j === s.length). or you can increase the loop range to while (j <= s.length), then check if (i === s.length) and do the final compare. but this way you will be checking i === s.length every step of your way, which is slower.
+*/

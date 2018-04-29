@@ -1,0 +1,314 @@
+// 684 redundant connection
+/*
+    find a backedge in a directed graph
+*/
+var findRedundantConnection = function(edges) {
+    var adj = {}, i;
+    for (i=0; i<edges.length; i++){
+        u = edges[i][0];
+        v = edges[i][1];
+        
+        if (!adj.hasOwnProperty(u)) {
+            adj[u] = [];
+        }
+        
+        adj[u].push(v);
+    }
+    
+    // depth first search to find a back edge
+    var state={}, back=[]
+    DFS(1, adj, state, back);
+    //BFS(1, adj, state, back);
+    //DFSNonRecursive(1, adj, state, back);
+    return back[back.length - 1];
+};
+
+function DFS(u, adj, state, back) {
+    state[u] = true;
+    if (!adj.hasOwnProperty(u)) {
+        return;
+    }
+    
+    var j;    
+    for (j=0; j<adj[u].length; j++) {
+            v = adj[u][j];
+            if (!state.hasOwnProperty(v)) {
+                DFS(v, adj, state, back);
+            } else {
+                back.push([u, v]);
+            }
+    }
+};
+
+/*
+function DFSNonRecursive(root, adj, state, back) {
+    var stack = [], u, v;
+    stack.push(root);
+    while(stack.length > 0) {
+        // pre process node
+        u = stack.pop();
+        state[u] = true; 
+        if (adj.hasOwnProperty(u)) {
+            for (i=0; i < adj[u].length; i++) {
+                v = adj[u][i];
+                
+                // process edge
+                if (state.hasOwnProperty(v)) {
+                    back.push([u, v]);
+                } else {
+                    stack.push(v);
+                }
+            }
+        }
+        
+        // post process node
+    }
+}
+*/      
+
+function BFS(root, adj, state, backedge) {
+    var queue = [];
+    queue.push(root);
+    while(queue.length > 0) {
+        u = queue.shift();
+        if (adj.hasOwnProperty(u)) {
+            for(i=0; i<adj[u].length; i++) {
+                v = adj[u][i];
+                if (!state.hasOwnProperty(v)) {
+                    state[v] = true;
+                    queue.push(v);
+                } else {
+                    backedge.push([u, v]);
+                }
+            }
+        }
+    }
+    
+    return backedge[backedge.length - 1];
+}
+
+/*
+    build a hash map as the adj, do DFS to find all back edge, then find the last edge in the array if there are multiple ones. you can find back edge by any kind of traverse (dfs or bfs); however, each type of traverse will detect different back edge. so the following solution may not give you the back edge expected by the online judge. a better solution will be build the tree using set union data structure
+*/
+
+var findRedundantConnection = function(edges) {
+    var hash = {}, i, u, v;
+    for (i = 0; i < edges.length; i++) {
+        u = edge[i][0];
+        v = edge[i][1];
+        
+        if (!hasOwnProperty(u)) {
+            hash[u] ={val: u, child:[], visited: false};
+        }
+        
+        if (!hasOwnProperty(v)) {
+            hash[v] = {val: v, child:[], visited: false};
+        }
+        
+        hash[u].child.push(hash[v]);
+    }
+    
+    /*
+        for dfs, use post process (when it's poped out of the stack) the mark the node as visited
+    */
+    var stack = [], back = [], cur;
+    stack.push(hash[1]);
+    while (stack.length > 0) {
+        cur = stack.pop();
+        
+        cur.visited = true;
+        u = cur.val;
+        for (i = 0; i < cur.child.length; i++) {
+            v = cur.child[i].val;
+            if (hash[v].visited) {
+                back.push([u, v])
+            } else {
+                stack.push(cur.child[i]); /*cur.child[i] is also hash[v], you can use either one*/
+            }
+        }
+    }
+    
+    /*
+        find the last back edge appears in the edges array
+    */
+    if (back.length === 0) {
+        return []
+    } else if (back.length === 1) {
+        return back[0];
+    } else {
+        /**/
+    }   
+}
+
+var findRedundantConnection = function(edges) {
+    if (!edges || edges.length < 3) {
+        return [];
+    }
+    
+    var hash = {}, u, v, i;
+    for (i = 0; i < edges.length; i++) {
+        u = edges[i][0];
+        v = edges[i][1];
+        
+        if (!hash.hasOwnProperty(u)) {
+            hash[u] = true;
+        }
+        
+        if (!hash.hasOwnProperty(v)) {
+            hash[v] = true;
+        } else {
+            back = [u, v];
+        }
+    }
+    
+    return back;
+}
+
+/*
+    using set union
+*/
+var findRedundantConnection = function(edges) {
+    if (!edges || edges.length < 3) {
+        return [];
+    }
+    
+    var hash = {}, u, v, i, back;
+    for (i = 0; i < edges.length; i++) {
+        u = edges[i][0];
+        v = edges[i][1];
+        
+        if (!hash.hasOwnProperty(u)) {
+            hash[u] = {parent: u};   
+            if (!hash.hasOwnProperty(v)) {
+                hash[v] = {parent: u};
+            }
+        } else {
+            
+            /*
+                u already exist, setting v's parent to u's parent, this way, you will keep the parent pointer at the root while you are adding nodes
+            */
+            if (!hash.hasOwnProperty(v)) {
+                hash[v] = {parent: hash[u].parent};
+            } else {
+                if (hash[u].parent === hash[v].parent) {
+                    back = [u, v];
+                }
+            }
+        }  
+    }
+    
+    return back;
+}
+
+/*
+    setting v.parent = u is assuming u, which is assuming the root of the tree is the smallest number which is not true.
+    you can go through the edges once and see which nodes has the least in/out (since this is a undirected graph) degrees and use this as the root.
+    
+    using adj list (in the form of a hash table) to track the parent is adding directions to the graph, so unless the smallest or largest node is the root of the tree, you won't find the edge because you can only traverse in one direction (from large to small).
+    
+    using adjacency matrix [[9,10],[5,8],[2,6],[1,5],[3,8],[4,9],[8,10],[4,10],[6,8],[7,9]]
+    [[1, 9], [5, 9], [5, 7] [1, 7]]
+*/
+
+
+var findRedundantConnection = function(edges) {
+    var back, i, u, v, hash = {};
+    for (i = 0; i < edges.length; i++) {
+        u = edges[i][0];
+        v = edges[i][1];
+        
+        if (!hash.hasOwnProperty(u)) {
+            hash[u] = false;
+        }
+        
+        if (!hash.hasOwnProperty(v)) {
+            hash[v] = false;
+        }
+    }
+    
+    var keys = Object.keys(hash);
+    for (i = 0; i < keys.length; i++) {
+        var _row = Object.assign(_row, hash);
+        hash[keys[i]] = _row;
+    }
+    
+    for (i = 0; i < edges.length; i++) {
+        u = edges[i][0];
+        v = edges[i][1];
+        
+        if (isConnected(u, v, hash)) {
+            back = [u, v]
+        } else {
+            hash[u][v] = true;
+            hash[v][u] = true;
+        }
+    }
+};
+
+function isConnected(u, v, hash) {
+    var stack = [], _u, _v, keys, found = false, visited = {};
+    Object.assign(hash, visited);
+    
+    stack.push(u);
+    while (!found && stack.length > 0) {
+        _u = stack.pop();
+        visited[_u] = true; 
+        
+        keys = Object.keys(hash[_u]); 
+        for (i = 0; i < keys.length; i++) {
+            _v = keys[i];
+            if (!visited[_v] && hash[_u][_v]) {
+              if (_v === v) {
+                found = true;
+                break;
+              } else {
+                stack.push(_v);
+              }  
+            } 
+        } 
+    }
+    
+    return found;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    

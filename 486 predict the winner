@@ -1,0 +1,83 @@
+/*
+    486 predict the winner
+*/
+
+your last step will have only two numbers left. if there are even number of numbers in total, you oponent gets to pick the last one, so you end up having the larger one among the last two; if there are odd number of numbers in total, you make the last move, so you end up having the smaller one among the last two.
+
+any consecutive two numbers can be the last two, to reach this state, everything on the left (if any) and right (if any) need to be picked already. since you and your opponent will pick one by one and only from two side, you two will be picking from one side until it's empty, then the other side, or switching between left and right. until nothing left.
+
+in case 1 5 2, the last step can be either 1 5 or 5 2. since there are odd number of numbers, you get the smaller one from the last two. in case 1, 5, you get 1, then only 2 left and it's you turn; in case 5, 2, you get 2, then only 1 left it's you turn. so either way you are not going to win.
+
+1, 5, 233, 7. 
+last step: 1, 5 you get 5
+pre step: 233, 7 you get 233
+you can win
+
+last step 5, 233 you get 233
+pre step, 1, 7 you get 7 (or 1)
+you can win
+
+last step 233, 7 you get 233
+pre step 1, 5 you get 5 (or 1)
+you can win
+
+1, 5, 2, 6
+
+1, 5 - 5
+2, 6 - 6 you win
+    - 2 a tie
+    
+5, 2 - 5
+1,6 - 6 you win
+    - 1 you lose
+
+2,6 - 6
+1,5 - 5 you win
+    - 1 you lose
+    
+1, 3, 4, 2, 6
+4,2 - you get 2
+3,6
+    3   - you get 3
+        1, 6 - you get 1 you lose
+    6   - you get 6
+        1, 3 - you get 1 you win       
+    
+so you can pick your last two there are n/2 choices, for each choice. if you have numbers on the left, the whole left side is a sub problem; if you have numbers on the right, the whole right side is a sub problem; or you can pick one from each side as your next step. when there is only one left whoever's turn that is, that player gets the number. 
+
+for odd numbers, you get the smaller one when there are two numbers; if you get a sub problem that has only one number, that's yours
+for even numbers, you get the larger one when there are two numbers; you won't ever have a sub problem with only one number, because each step take two number, one by you one by your opponent.
+
+or if have two numbers, you can get either one, which will double the possibilities of your search space (sub problems)
+or only the last step both you and your opponent wants to get the larger one, otherwise you get to pick either one and check for both cases.
+
+/*
+    
+    at each step, the player who has the turn will have two options, then the next, the other player will also have two options. if you enumerate all posibilities, there will be 2^n. if you assume that you've already known the optimal strategy for a small problem, at each step, you can easily compare the two options you have and determine which one will make you win (or you always win, or you won't win anyhow). the small problems can be broken into even smaller problems to solve. eventually you reach the base case when there are only 2 numbers, whomever gets to pick first can always pick the larger one and win. then when you have 3 number 2, 5, 7 you can either take 2 or 7, leaving 5, 7 and 2, 5 as subproblems whose solution you alredy have, then by comparing, you will know the optimal solution for 2, 5, 7, then you can build the optimal solution all the way up to n.
+    
+    compare with the burst balloon problem, you actually choose your first step as you would in the real game, can you model the problem using the last step and works the way back? let's see.
+    
+    if you have 1, 4, 5, 2, 3, you get to pick the last one and it can be any one of the 5 numbers. if you pick 5 as your last step for example, you must first pick 1, 4, 2, 3, ideally, if you know the optimal solution for all smaller subproblems, you can solve your current problem. 
+    
+    for the base case, if you have only one number you get to pick it if it's your turn; if you have two numbers, you get the smaller one if you don't get to pick first, otherwise you first pick the larger one. 
+    
+    with 3 numbers, i.e., 1, 4, 2. since there are odd number of numbers, you get to pick the last one, you have the following cases
+    1 + 2 // because for 4, 2, you get to pick first but you can only pick 2 since you must pick from either side
+    4 + max(2, 1) // since you can pick from both sides and pick first, you pick the larger one
+    2 + 1 // beause for 1, 4, you get to pick first but you can only pick 1 since you must pick from either side and in this case you can only pick left side. 
+    so among all three case, picking 4 as your last one will yiel optimal solution, which gives 6 in total (other two options both yiel 3). 
+    
+    notice that in case of 3 numbers, you don't always get the last one. if you have 4 (even number) in total, since you get to pick first, when there are 3 left, your opponent gets the last one; when there are even numbers in total, you gets the last one. so for the same base case, you not only need to calculate two cases, either you get the last one or not. also notice that with 3 numbers, i.e., 1, 4, 2 you don't get to use the optimal solution for 2 numbers because you can only take number from one side.
+    
+    with 4 numbers, 1, 4, 2, 3. let's say you've figured out 1, 4, 2 and 4, 2, 3, now if you pick 1 as your last, since you have even number, your oponent will get the last one, so the problem becomes, from 4, 2, 3 you get the last, which solution is optimal. notice that it's different from the pure 4, 2, 3 problem because you can only pick from one side (in this case from the right), you can't really just reuse the optimal solution of 4, 2, 3. 
+    
+    this shows that by modeling the problem as last step first problem, you don't really build up the solution group up from smaller sub problems. it works if you model it as the first step. just the opposite of the burst baloon problem. 
+    
+    
+*/
+
+
+
+
+                                
+

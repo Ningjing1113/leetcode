@@ -1,0 +1,47 @@
+/*
+    144 binary tree pre-order traverse
+*/
+
+var preorderTraversal = function(root) {
+    if (!root) {
+        return [];
+    }
+    
+    var stack = [], numbers = [], cur;
+    stack.push(root);
+    while (stack.length > 0) {
+        cur = stack.pop();
+        numbers.push(cur.val);
+        if (cur.right) {
+            stack.push(cur.right);
+        }
+        
+        if (cur.left) {
+            stack.push(cur.left);
+        }
+    }
+    
+    return numbers;
+};
+
+/*
+var preorderTraversal = function (root) {
+    if (!root) {
+        return [];
+    }
+    
+    var numbers = [];
+    _recurse(root, numbers);
+    return numbers;
+}
+
+function _recurse(root, numbers) {
+    if (!root) {
+        return;
+    }
+    
+    numbers.push(root.val);
+    _recurse(root.left, numbers);
+    _recurse(root.right, numbers);
+}
+*/

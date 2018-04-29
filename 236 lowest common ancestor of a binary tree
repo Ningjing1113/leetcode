@@ -1,0 +1,222 @@
+/*
+    236 lowest common ancestor of a binary tree
+*/
+
+var lowestCommonAncestor = function(root, p, q) {
+    if (!root) {
+        return null;
+    } else if (!p && q) {
+        return q;
+    } else if (!q && p) {
+        return p;
+    } else if (p === q) {
+        return p;
+    } else if (p === root || q === root) {
+        return root;
+    }
+    
+    var data = {foundP: false, foundQ: false, ancestor: null}
+    _recurse(root, p, q, data);
+    return data.ancestor;
+};
+
+function _recurse(root, p, q, data) {
+    if (!root) {
+        return;
+    }
+    
+    /*
+        two cases:
+        1. root is one of p and q, the other is in its left tree or right tree
+        2. p and q is in root's left and right tree
+        
+        after data.ancestor is not null, stop recursion and return;
+    */
+    _recurse(root.left, p, q, data);
+    if (data.ancestor) {
+        return;
+    } else if (root === p ) {
+        data.foundP = true;
+        if (data.foundQ) {
+            data.ancestor = root;
+            return;    
+        }
+    } else if (root === q) {
+        data.foundQ = true;
+        if (data.foundP) {
+            data.ancestor = root;
+            return;
+        }
+    }
+    
+    _recurse(root.right, p, q, data);
+    if (data.ancestor) {
+        return;
+    } else if (root === p) {
+        data.foundP = true;
+        if (data.foundQ) {
+            data.ancestor = root;
+            return;    
+        }
+    } else if (root === q) {
+        data.foundQ = true;
+        if (data.foundP) {
+            data.ancestor = root;
+            return;
+        }   
+    } else if (data.foundP && data.foundQ) {
+        data.ancestor = root;
+        return;
+    }
+}
+
+function _recurse(root, p, q, data) {
+    if (!root) {
+        return;
+    }
+    
+    /*
+        two cases:
+        1. root is one of p and q, the other is in its left tree or right tree
+        2. p and q is in root's left and right tree
+        
+        after data.ancestor is not null, stop recursion and return;
+    */
+    
+    if (root === p) {
+        data.foundP = true;
+        if (data.foundQ) {
+            return;
+        }
+        
+        _recurse(root.left, p, q, data);
+        if (data.foundQ) {
+            data.ancestor = root;
+            return;
+        } else {
+            _recurse(root.right, p, q, data);
+            if (data.foundQ) {
+                data.ancestor = root;
+                return;
+            }
+        }
+    } else if (root === q) {
+        data.foundQ = true;
+        
+        /*
+            if q is already found at this point, it must come from sibling
+        */
+        if (data.foundP) {
+            return;
+        }
+        
+        _recurse(root.left, p, q, data);
+        if (data.foundP) {
+            data.ancestor = root;
+            return;
+        } else {
+            _recurse(root.right, p, q, data);
+            if (data.foundP) {
+                data.ancestor = root;
+                return;
+            }
+        }
+    } else {
+        _recurse(root.left, p, q, data);
+        if (data.ancestor) {
+            return;
+        } 
+        
+        _recurse(root.right, p, q, data);
+        if (data.ancestor) {
+            return;
+        }
+        
+        if (data.foundP && data.foundQ) {
+            data.ancestor = root;
+            return;
+        }
+    }
+}
+
+var lowestCommonAncestor = function(root, p, q) {
+    if (!root) {
+        return null;
+    } else if (!p && q) {
+        return q;
+    } else if (!q && p) {
+        return p;
+    } else if (p === q) {
+        return p;
+    } else if (p === root || q === root) {
+        return root;
+    }
+    
+    var data = {foundP: false, foundQ: false, ancestor: null}
+    _recurse(root, p, q, data);
+    return data.ancestor;
+};
+
+
+/*
+    first, you should decide the type of traverse you need, pre order, in order or post order. In this case, it's post order because you need to traverse the left tree and right tree, then analyze the root. in the case where the root node is one of p or q, you can skip the right child if the other node is in the left child, otherwise you still have to traverse the right child. 
+    
+    second, you should save the result of the left tree, gather info from the right tree then analyze the result. it's essential not to pass the left tree info down to the right tree recursion because you won't be able to tell which left tree the data you are holding belongs to since the right tree of your current node will also have left trees of its own. It's just the nature of tree data structure. This is true for all post order traverse problem. The fact that you need to traverse both left and right tree, and each left tree may have its own right trees and right tree may have its own left trees, you must hide the data between your root's left and right tree. Only the root will know both of them.
+*/
+function _recurse(root, p, q, data) {
+    if (!root) {
+        return;
+    }
+    
+    /*
+        two cases:
+        1. root is one of p and q, the other is in its left tree or right tree
+        2. p and q is in root's left and right tree
+        
+        after data.ancestor is not null, stop recursion and return;
+    */
+    
+    _recurse(root.left, p, q, data);
+    var _foundP = false, _foundQ = false;
+    /*
+        if you've found one of p and q not both, you need hide it when traversing the right child because if the right child finds another node, it won't know whether the previously found node is its own child or not. 
+    */
+    if (data.ancestor) {
+        return;
+    } else if (data.foundP) {
+        _foundP = true;
+        data.foundP = false;
+    } else if (data.foundQ) {
+        _foundQ = true;
+        data.foundQ = false;
+    }
+    
+    _recurse(root.right, p, q, data);
+    if (data.ancestor) {
+        return;
+    } else if (data.foundP) {
+        _foundP = true;
+    } else if (data.foundQ) {
+        _foundQ = true;
+    }
+    
+    if (_foundP && (_foundQ || root === q)) {
+        data.ancestor = root;
+        return;
+    } else if (_foundQ && (_foundP || root === p)) {
+        data.ancestor = root;
+        return;
+    } else if (root === p) {
+        data.foundP = true;
+    } else if (root === q) {
+        data.foundQ = true;
+    } else {
+        if (_foundP) {
+            data.foundP = true;
+        } 
+        
+        if (_foundQ) {
+            data.foundQ = true;
+        }
+    } 
+}

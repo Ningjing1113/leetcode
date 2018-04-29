@@ -1,0 +1,30 @@
+/*
+    254 factor combinations
+*/
+
+var getFactors = function(n) {
+    var combination = [];
+    breakingIntoFactors([], n, combination);
+}
+
+function breakingLastFactors(pre, n, combination) {
+    var i = 2;
+    while (i*i < n) {
+        if (n % i === 0) {
+            let nextFactor = Math.floor(n / i);
+            pre = pre.concat([i, nextFactor]);
+            if (pre[0] < pre[pre.length - 1]) {
+                combination.push(pre);    
+            }
+            
+            pre.pop();
+            breakingLastFactors(pre, nextFactor, combination);
+        }
+        
+        i++;
+    }
+    
+    if (i*i === n) {
+        combination.push([i, i]);
+    }
+}

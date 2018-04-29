@@ -1,0 +1,225 @@
+/*
+456 132 pattern
+*/
+
+var find132pattern = function(nums) {
+
+}
+
+3, 1, 4, 2, 7, 5, 0
+4, 4, 7, 7, x, x, x   first larger
+1, 0, 2, 0, 5, 0, x   first smaller
+
+find the first larger and the first smaller
+go through the chain, for each larger, combine it with each smaller
+
+var find132pattern = function(nums) {
+    var l, s, i, stack = [], Larger = [], Smaller = [];
+    for ( i = 0; i < nums.length; i++) {
+        cur = nums[i];
+        top = stack[stack.length - 1];
+        if (top === undefined) {
+            stack.push(i);
+            continue;
+        }
+
+        while (stack.length > 0 && cur > nums[top]) {
+            Larger[top] = i;
+            stack.pop();
+            top = stack[stack.length - 1];
+        }
+
+        stack.push(i);
+    }
+
+    while (stack.length > 0) {
+        top = stack.pop();
+        Larger[top] = null;
+    }
+
+    for ( i = 0; i < nums.length; i++) {
+        cur = nums[i];
+        top = stack[stack.length - 1];
+        if (top === undefined) {
+            stack.push(i);
+            continue;
+        }
+
+        while (stack.length > 0 && cur < nums[top]) {
+            Smaller[top] = i;
+            stack.pop();
+            top = stack[stack.length - 1];
+        }
+
+        stack.push(i);
+    }
+
+    while (stack.length > 0) {
+        top = stack.pop();
+        Smaller[top] = null;
+    }
+
+    // console.log(nums);
+    // console.log(Larger);
+    // console.log(Smaller);
+    //var pair = [];
+    /*
+    for (i = 0; i < nums.length; i++) {
+        l = Larger[i];
+        while (l !== null) {
+            //console.log(l + " " + Larger[l]);
+            
+            s = Smaller[i];
+            while (s !== null) {
+                pair.push([nums[i], nums[l], nums[s]]);
+                s = Smaller[s];
+            }
+            
+            l = Larger[l]
+        }
+    }
+    */
+    
+    for (i = 0; i < nums.length; i++) {
+        l = Larger[i];
+        while (l !== null) {
+            s = Smaller[l];
+            while (s !== null) {
+                if (nums[s] > nums[i] && nums[s] < nums[l]) {
+                    //pair.push([nums[i], nums[l], nums[s]])
+                    return true;
+                } else if (nums[s] <= nums[i]){
+                    s = Larger[s];
+                } else {
+                    s = Smaller[s];
+                }
+            }
+            
+            l = Larger[l];
+        }
+    }
+    
+    return false;
+};
+
+/*
+    456 132 pattern
+*/
+/*
+    3, 1, 4, 2, 7, 5, 0
+    
+    if you build the nextSml and nextLrg array, then you can start from there and try to find all the inversion pairs, starting from any element i in nums, the value first goes up at j and then goes down at k, but nums[k] is still larger than nums[i].
+*/
+var find132Pattern = function(nums) {
+    if (!nums || nums.length < 3) {
+        return false;
+    }
+    
+    var nextSml = findNext(nums, ((a,b) => a < b));
+    nextLrg = findNext(nums, ((a, b) => a > b)),
+    allPairs = [];
+    
+    nums.forEach((a, i, A) => {
+        backtracking(nums, i, nextLrg[i], nextLrg, nextSml, [], allPairs);
+    });
+    
+    return allPair.length > 0;
+}
+
+function findNext(nums, predicate) {
+        var stack = [], next = new Array(nums.length), i, top;
+        for (i = 0; i < nums.length; i++) {
+            top = stack[stack.length - 1];
+            if (top === undefined) {
+                stack.push(i);
+                continue;
+            }
+
+            // 10, 9, 2, 5, 3, 1
+            while (stack.length > 0 && predicate(nums[i], nums[top])) {
+                top = stack.pop();
+                next[top] = i;
+            }
+
+            stack.push(i);
+        }
+        
+        while (stack.length > 0) {
+            next[stack.pop()] = null;
+        }
+
+        return next
+    }
+    
+    /*
+        we only need 3 numbers, when kick off the backtracking, we put the first number into pair. the second number we are looking for is larger than the first number, that's why the kick off put nextLrg[cur] as next.
+        
+        when we have only 1 number, and next larger of the next (since we kick off with nextLrg[cur] as the next), will be larger, so it's a candidate for the 2nd value. the next sml of the next can also be larger than the first value (depending on the diff between the first and the second value, if the diff > 1, it's possible that the next smaller of the next larger of cur is also larger than cur).
+        
+        when we've collected 2 values, we need to collect the 3rd one starting with nextSml[next]. when we are collecting the 3rd value, if we found one, we need to keep backtracking on the nextSml of the next
+    */
+  function backtracking(nums, cur, next, nextLrg, nextSml, pair, allPairs) {
+    if (!next) {
+        return;
+    }
+    
+    if(pair.length === 1) {
+        if (nums[next] > nums[cur]) {
+            pair.push(nums[next]);
+            backtracking(nums,cur, nextSml[next], nextLrg, nextSml, pair, allPairs);
+            pair.pop();
+            
+            backtracking(nums, cur, nextLrg[next], nextLrg, nextSml, pair, allPairs);
+            pair.pop();
+            backtracking(nums, cur, nextSml[next], nextLrg, nextSml, pair, allPairs);
+            pair.pop();
+        } else {
+            backtracking(nums, cur, nextLrg[next], nextLrg, nextSml, pair, allPairs);
+        }
+    } else if (pair.length === 2) {
+        if (nums[next] > nums[cur] && nums[next] < pair[1]) {
+            pair.push(nums[next]);
+            allPair.push(pair.slice(0));
+            pair.pop();
+            backtracking(nums, cur, nextSml[next], nextLrg, nextSml, pair, allPairs);
+        } else {
+            backtracking(nums, cur, nextLrg[next], nextLrg, nextSml, pair, allPairs);
+        }
+    }
+  }  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+ 
+  
+  

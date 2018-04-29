@@ -1,0 +1,144 @@
+/*
+    11. container with most water
+*/
+
+/*
+    you've have a secure container (not leaking) of height min(ai, aj) if pick i and j as the boundary of the container. there might be other lines ak in between but the height should be <= min(ai, aj). since you are looking for container with the largest volumn, ideally, you would want the container to be as long as possible and as tall as possible (a container can be really tall although narrow, or really wide although shorter).
+    
+    if you start from the left and scan through each line, using your current line as the left boundary, the largest container you can have is by using the first line that's taller than the current line (first large), i.e. k. from there, you take k as your new left boundary and look for the next line taller than k. each time you found a container, you calculate the volumn and see if that's the largest, if so, track it. the same operation needs to be done one more pass from right to left, so you don't miss the case when the left boundary is taller than (or equal to) the right boundary.
+    
+    an edge case would be when your scanning pointer goes beyond the array, you need to do one last calculation.
+    i, j
+    while () {
+        if () {
+            calculate the volumn;
+            move both pointer;
+        } else {
+            move j;
+        }
+    }
+    
+    check the last possible container;
+    
+    or
+    
+    for (j from 0 to nums.length) {
+        if (j is off the boundary) {
+            one last check;
+        }
+        
+        if () {
+            calculate the volumn;
+            move both pointer;
+        } else {
+            move j;
+        }
+    }
+*/
+
+var maxArea = function(heights) {
+    // first pass from left to right
+    var i, j, maxArea = {val: 0};
+    i = 0, j = 1;
+    while (j < heights.length) {
+        if (heights[j] >= heights[i]) {
+            updateMaxArea(heights, i, j, maxArea);     
+            i = j;
+        }
+        
+        j++;
+    }
+    
+    if (heights[j - 1] < heights[i]) {
+        updateMaxArea(heights, i, j - 1, maxArea);
+    }
+    
+    // second pass from right to left
+    i = heights.length - 1;
+    j = i - 1;
+    while (j >= 0) {
+        if (heights[j] >= heights[i]) {
+            updateMaxArea(heights, i, j, maxArea);     
+            i = j;
+        }
+        
+        j--;
+    }
+    
+    if (heights[j + 1] < heights[i]) {
+        updateMaxArea(heights, j + 1, i, maxArea);
+    }
+    
+    return maxArea.val;
+}
+
+function updateMaxArea(heights, i, j, maxArea) {
+    let area = (j - i) * Math.min(heights[i], heights[j]);
+    if (area > maxArea.val) {
+        maxArea.val = area;
+    }
+}
+
+console.log(maxArea([1, 1]));
+console.log(maxArea([3, 1, 1, 2, 4, 1, 1, 2, 3]));
+console.log(maxArea([3, 2, 1]));
+console.log(maxArea([2, 1, 1, 5, 3, 6, 2]));
+  
+    /*
+        defect report:
+        algorithm:
+        1. when calculating the width of the container, if i is left j is right, the length should be j - i, not j - i + 1. for a range i to j inclusive, there are j - i + 1 elements but j - i steps in between. This is one very important detail. 
+        
+        coding:
+        1. when going from right to left, j is smaller than i, when calling updateMaxArea, you should pass in the smaller index first, so in this case, it j before i;
+        
+        2. when j goes off the boundary, the last calculation should use j - 1 if it's left to right and j + 1 if it's right to left.
+        
+        edge case:
+        
+        typo:
+        1. maxArea
+        
+        others:
+        variable name:
+        1. heights 
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

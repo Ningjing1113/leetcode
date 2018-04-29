@@ -1,0 +1,103 @@
+/*
+    accepted 139ms
+    654 maximum binary tree
+*/
+
+/*
+    solution 1: using dynamic programming to build a table where you can look up for a given sub array i to j, what is the largest value. then you can start from the largest value in the array, devide the problem into two sub problems and solve it.
+    
+    solution 2: you can start building tree node while traversing the array from left to right, keep a parent pointer in the tree node in case you need to travel back to the ancestor to find the right place to insert the next tree node.
+    
+    both solutions are N square, but the second one is slightly better because it's N square divided by a constant which depends on the nature of the array.
+*/
+
+var constructMaximumBinaryTree = function(nums) {
+    if (!nums || nums.length === 0) {
+        return null;
+    }
+    
+    var cur, pre, max, i;
+    max = new TreeNode(nums[0].val);
+    pre = max;
+    for (i = 1; i < nums.length; i++) {
+        cur = new TreeNode(nums[i].val);
+        
+        if (cur.val > pre.val) {
+            /*
+                cur should be the max, since we are traversing from left to right, max is on the left side of cur; thus, put max as the left node of cur and update max to cur.
+            */
+            if (cur.val > max.val) {
+                cur.left = max;
+                max.parent = cur;
+                max = cur;
+            } else {
+                /*
+                    cur is somewhere between max and pre. 
+                */
+                while (pre.parent) {
+                    pre = pre.parent;
+                    if (pre.val > cur.value) {
+                        cur.left = pre.right;
+                        pre.right.parent = cur;
+                        pre.right = cur;
+                        cur.parent = pre;
+                        break;
+                    }
+                }
+            }
+        } else {
+            pre.right = cur;
+            cur.parent = pre;
+        }
+        
+        pre = cur;
+        
+    }
+    
+    return max;
+}
+
+/*
+    Code walk through:
+    1. check if the solution handles empty tree, single node tree, tree that has only left/right nodes, and super big tree
+    2. removed a unnecessary condition. when cur is between pre and max, you travel back to the ancestors of pre to find a spot for cur. there is no need to check if cur will be max since you already have that case covered in condition cur.val > max.val (and the array doesn't have duplicates).
+    
+    Case walk through:
+    1. regular case
+    2. increasing sequence and decreasing sequence
+*/
+
+/*
+    [undefined,null,undefined,null,undefined,null,undefined,null,undefined,null,undefined]
+    [6,3,5,null,2,0,null,null,1]
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

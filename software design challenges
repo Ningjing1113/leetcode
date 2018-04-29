@@ -1,0 +1,11 @@
+design challenges:
+1. each cluster has a different versions of plugins, for your component to work, you need to use the cluster that has the dependencies with the correct version. assuming you know a list of dependencies you need, and for each cluster, you also have a list of plugins it has. how can you decide which cluster to use. follow up: how do you design a deployment strategy to make sure each component will run on all clusters or specific clusters
+
+2. how do you implment a new workflow that support the old workflow in certain regions but in the near future, you will migrate all regions to the new flow (wrong anwser: using if else conditions in the code and remove them when you are ready to migrate.)
+
+3. design a dialog that allows you create and edit an account. this dialog will be used by different component in different flows. different regions also share the same dialog but each region may apply different business logic regarding create/edit account dialog. (wrong answer: using if else conditions to write customized code for different region and flow.)
+
+4. you would like to match bank transactions to manually added business transactions. ideally, you want to allow the users to choose a timespan they want to run the match, and suggest them potential matches. transactions has data fields such date, income/expense, amount, customer/vendor, description, tax. for some users, they might have thousands of transactions each day, how do you make sure it doesn't take forever to get the results for them.(wrong answer: for each transaction, loop through the database record to match the biz transactions, if there are too much data, limit the range of matching or place a timelimit on the matching.)
+
+5. you need to run an algorithm that is best run in O(n2), how do you make sure it won't hang the UI (you will need this result for the UI to fully function.) (wrong answer: place a time limit running the algorithm)
+ 

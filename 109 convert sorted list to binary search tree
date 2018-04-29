@@ -1,0 +1,32 @@
+/*
+    109 convert sorted list to binary search tree
+*/
+
+var sortedListToBST = function(head) {
+    var cur = head, nums = [];
+    while (cur) {
+        nums.push(cur.val);
+        cur = cur.next;
+    }
+    
+    return constructBST(nums, 0, nums.length - 1);
+    
+}
+
+function constructBST(nums, low, high) {
+    if (low === high) {
+        return new TreeNode(nums[low]);
+    }
+    
+    var mid = low + (high - low + 1)/2;
+    var cur = new TreeNode(nums[mid].val);
+    if (mid - 1 >= low) {
+        cur.left = constructBST(nums, low, mid - 1);
+    }
+    
+    if (mid + 1 <= high) {
+        cur.right = constructBST(nums, mid + 1, high);
+    }
+    
+    return cur;
+}

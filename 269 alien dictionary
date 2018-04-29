@@ -1,0 +1,106 @@
+/*
+    269 alien dictionary
+*/
+
+/*
+    [
+        
+      "wrt",
+      "wrf",
+      "er",
+      "ett",
+      "rftt"
+    ]
+    
+    data structure composition
+    hash:
+    w - {
+            sequence: 0
+            obj: {
+                    val: w,
+                    layer: 0,
+                    rank: 0
+                 }
+        }
+        
+    insertionSort, based on rank first then sequence
+    decrease the rank if another parent letter on the same layer is discovered
+*/
+
+var alienOrder = function(words) {
+    var hash = {}, layer = {}, counter = 0;
+    words.forEach({word => {
+        let pre = null;
+        [].forEach.call((word, i), (letter) => {
+            
+            let cur = {};
+            if (!hash[letter]) {
+                hash[letter] = cur;
+                counter++;
+                let layer = pre && (pre.obj.layer + 1) || 0,
+                obj = {
+                    val: letter,
+                    layer: layer,
+                    rank: 0,
+                };
+
+                cur = {
+                    sequence: counter,
+                    obj: obj
+                }
+
+                if (!layerhash[layer]) {
+                    layerhash[layer] = [];
+                }
+
+                insertionSort(layerhash[layer], hash[letter], hash);
+            } else {
+                cur = hash[letter];
+                if (pre) {
+                    if (pre.obj.layer === cur.obj.layer) {
+                        pre.obj.rank--;
+                    }
+                }
+            }
+            
+            pre = hash[letter];
+        })
+    }});
+    
+    // go through the layer hash to collect the letters
+    let order = [];
+    Object.values(layerHash).forEach((layer) => {
+        layer.forEach(
+            (letter) => {
+                order.push(letter.obj.val);
+            }
+        );
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

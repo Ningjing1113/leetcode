@@ -1,0 +1,30 @@
+/*
+    accepted 88ms 77%
+    209 minimum size subarray
+*/
+
+var minSubArrayLen = function(s, nums) {
+    var i, j, sum = 0, minLength = nums.length + 1;
+    i = j = 0;
+    while (j < nums.length) {
+        sum += nums[j];
+        if (sum >= s) {
+            while (i < j && sum >= s) {
+                minLength = Math.min(minLength, j - i + 1);
+                sum -= nums[i];
+                i++;
+                
+            }
+            
+            // there exists one element whose value is >= s
+            if (i === j && sum >= s) {
+                return 1;
+            }
+        } 
+        
+        j++;
+    }
+    
+    // if minLength never gets updated, the whole array sum is still < s, in which case 0 should be returned
+    return minLength === nums.length + 1 ? 0 : minLength;
+};

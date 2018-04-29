@@ -1,0 +1,36 @@
+        /*
+            subsets II
+        */
+        var subsetsWithDup = function(nums) {
+            nums.sort((a, b) => {return a > b});
+          var hash = {}, subsets;
+            backtracking(nums, 0, "", hash);
+            subsets = Object.keys(hash).map( str => {
+                let arr = str.split(".").map((s) => parseInt(s));
+                arr.pop();
+                return arr;
+            });
+                
+            subsets.unshift([]);
+            return subsets;
+        };
+
+        function backtracking(nums, index, str, hash) {
+            // for each element, you can either take or not take
+            // if you use a hash set to track the "string" you already collected, you can avoid duplicate numbers
+            // by the end of the backtracking, you need to convert these strings to number arry
+            // the base case for the backtracking should include everything, so each step you take a number, that's a result.
+            if (index === nums.length) {
+                return;
+            }
+
+            let _str = str.concat(nums[index].toString()).concat(".");
+            if (!hash.hasOwnProperty(_str)) {
+                hash[_str] = true;
+            }
+            
+            backtracking(nums, index + 1, _str, hash);
+            backtracking(nums, index + 1, str, hash);
+        }
+      
+      console.log(subsetsWithDup([-1, 1, 2]));

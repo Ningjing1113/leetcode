@@ -1,0 +1,81 @@
+/*
+    402 remove K digits
+    
+    1432219 remove 3 digits
+    
+    1 21 9
+*/
+
+var removeKdigits = function(num, k) {
+    var i, j;
+    i = 0;
+    j = num.length - k;
+    while ( j < num.length) {
+        while (i < j) {
+            if (num[i] > num[i + 1]) {
+                num[i] = " ";
+                i++;
+                break;
+            } else {
+                i++;
+            }
+        }
+        
+        j++;
+    }
+    
+    var smallest = "";
+    for (i = 0; i < num.length; i++) {
+        if (num[i] !== " ") {
+            smallest += num[i];
+        }
+    }
+    
+    return smallest;
+}
+
+var removeKdigits = function(num, k) {
+    if (!num || num.length === 0) {
+        return "0"
+    }
+    
+    var hashStack = {}, i, j, n, min = "", cur = -1;
+    for (i = 0; i < 10; i++) {
+        hashStack[i] = [];
+    }
+    
+    for (i = 0; i < num.length; i++) {
+        hashStack[num[i]].unshift(i);
+    }
+    
+    console.log(hashStack);
+    n = num.length - k;
+    while (n > 0) {
+        for (i = 0; i < 10; i++) {
+            top = hashStack[i];
+            for (j = top.length - 1; j >= 0; j--){
+                index = top[j];
+                if (num.length - index >= n && index > cur) {
+                    cur = index;
+                    min += num[index];
+                    top.pop();
+                    n--;
+                    i= 10;
+                    break;
+                }
+            }
+        }     
+    }
+    
+    for (i = 0; i < min.length; i++) {
+        if (min[i] !== "0") {
+            break;
+        }
+    }
+    
+    if (i === min.length) {
+        return "0";
+    } else {
+        return min.substring(i);    
+    }
+};

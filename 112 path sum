@@ -1,0 +1,44 @@
+/*
+    accepted 102 ms
+    112. Path Sum
+*/
+
+/*
+    passing down a model object to track the sum on the current path
+*/
+
+var hasPathSum = function(root, sum) {
+    if (!root) {
+        return false;
+    }
+    
+    var data = {sum: root.val, foundPath: false};
+    _hasPathSumRecursive(root, sum, data);
+    return data.foundPath;
+}
+
+function _hasPathSumRecursive(root, sum, data) {
+    if (!root.left && !root.right) {
+        if (data.sum === sum) {
+            data.foundPath = true;
+            return;
+        }
+    }
+    
+    if (root.left && !data.foundPath) {
+        data.sum += root.left.val;
+        _hasPathSumRecursive(root.left, sum, data);
+        data.sum -= root.left.val;
+    }
+    
+    if (root.right && !data.foundPath) {
+        data.sum += root.right.val;
+        _hasPathSumRecursive(root.right, sum, data);
+        data.sum -= root.right.val;
+    }
+}
+
+/*
+    Bug:
+    1. forget to return the result from the driver function.
+*/

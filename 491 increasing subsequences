@@ -1,0 +1,63 @@
+/*
+    491 increasing subsequence
+*/
+
+/*
+    4 6 7 7
+    
+    next greater:
+    6 7 7 null
+    
+    1: 
+    4
+    
+    2:
+    4 6
+    
+    3:
+    6 7
+    4 7
+    4 6 7
+    
+    4:
+    7 7 
+    6 7 7
+    4 7 7
+    4 6 7 7
+*/
+var findSubsequences = function(nums) {
+    var nextGreater = getNextGreater(nums);
+    var i, cur, pre, hash = {}, combinations = [], sequence = [];
+    hash[0] = [nums[0]];
+    pre = 0;
+    for (i = 0; i < nums.length; i++) {
+        // for the current pair
+        sequence.push(nums[i]);
+        sequence.push(nextGreater[i]);
+        hash[i] = [];
+        hash[i].push(sequence);
+        sequence = [];
+
+        // generate pairs from previous layer
+        if (i > 0 && nums[i] === nums[i - 1]){
+            generatePairs(hash, i, i - 1);
+        } else {
+            for(j = 0; j < i; j++) {
+                generatePairs(hash, i, j);
+            }
+        }
+    }
+
+    // copy all pairs from hash to combination array;
+    for ( i = 1; i < nums.length; i++) {
+        cur = hash[i];
+        for (j = 0; j < cur.length; j++) {
+            combinations.push(cur[j]);
+        }
+
+        delete hash[i];
+    }
+
+    return cobinations;
+}
+

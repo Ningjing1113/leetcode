@@ -1,0 +1,83 @@
+/*
+    130 surrounded regions
+*/
+
+var solve = function(board) {
+    if (!board || board.length === 0 || !board[0] || board[0].length === 0 ) {
+        return;
+    }
+    
+    var grid = new Array(board.length), i, j, maxRow = board.length - 1, maxCol = board[0].length - 1;
+    for (i = 0; i < grid.length; i++) {
+        grid[i] = new Array(board[0].length);
+        for (j = 0; j < grid[0].length; j++) {
+            grid[i][j] = "O";
+        }
+    }
+    
+    var stack = [];
+    for (j = 0; j <= maxCol; j++) {
+        if (board[0][j] === "O") {
+            stack.push({row: 0, col: j})
+        }
+    }
+    
+    for (j = 0; j <= maxCol; j++) {
+        if (board[maxRow][j] === "O") {
+            stack.push({row: maxRow, col: j})
+        }
+    }
+    
+    for ( i = 1; i <= maxRow; i++) {
+        if (board[i][0] === "O") {
+            stack.push({row: i, col: 0});
+        }
+    }
+    
+    for ( i = 1; i <= maxRow; i++) {
+        if (board[i][maxCol] === "O") {
+            stack.push({row: i, col: maxCol});
+        }
+    }
+    
+    var cur;
+    while (stack.length > 0) {
+        
+        cur = stack.pop();
+        if (grid[cur.row][cur.col] === "O") {
+            DFS(board, cur, grid, maxRow, maxCol);
+        }
+    }
+    
+    for (i = 0; i <= maxRow; i++) {
+        for (j = 0; j <= maxCol; j++) {
+            if (board[i][j] === "O" && grid[i][j] === "O") {
+                board[i][j] = "X";
+            }
+        }
+    }
+    
+}
+
+function DFS(board, cur, grid, maxRow, maxCol) {
+    if (grid[cur.row][cur.col] === "X") {
+        return;
+    }
+    
+    grid[cur.row][cur.col] = "X";
+    if (cur.row - 1 >= 0 && board[cur.row - 1][cur.col] === "O") {
+        DFS(board, {row: cur.row - 1, col: cur.col}, grid, maxRow, maxCol);
+    }
+    
+    if (cur.col + 1 <= maxCol && board[cur.row][cur.col + 1] === "O") {
+        DFS(board, {row: cur.row, col: cur.col + 1}, grid, maxRow, maxCol);
+    }
+    
+    if (cur.row + 1 <= maxRow && board[cur.row + 1][cur.col] === "O") {
+        DFS(board, {row: cur.row + 1, col: cur.col}, grid, maxRow, maxCol);
+    }
+    
+    if (cur.col - 1 >= 0 && board[cur.row][cur.col - 1] === "O") {
+        DFS(board, {row: cur.row, col: cur.col - 1}, grid, maxRow, maxCol);
+    }
+};

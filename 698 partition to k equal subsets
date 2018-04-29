@@ -1,0 +1,269 @@
+/*
+    698 partition to k equal subsets
+*/
+
+var canPartitionKSubsets = function(nums, k) {
+        // k is between 1 and 16
+        if (!nums || nums.length < k) {
+            return false;
+        }
+
+        let sum = nums.reduce((acc, x) => {return acc + x});
+        if (sum % k !== 0) {
+            return false;
+        }
+
+        nums.sort((a, b) => {return a - b});
+        let i = 0, j = nums.length - 1, target = Math.ceil(sum / k), _i = 0;
+        sum = nums[i] + nums[j];
+        while (i < j) {
+            if (sum === target) {
+                i++;
+                j--;
+                sum = nums[i] + nums[j];
+                _i = i;
+            } else if (sum < target) {
+                i++;
+                sum += nums[i];
+            } else {
+                if (i === 0 && nums[j] === target) {
+                    j--;
+                    sum = nums[i] + nums[j];
+                } else if (nums[_i] === nums[i]) {
+                    i++;
+                    sum += nums[i];
+                } else {
+                    /* 
+                        swap _i with i, excluded _i (currently i after swaping) from the sum by moving i one step back
+                    */
+                    let diff = sum - target;
+                    // keep adding from _i until we reach or go over the diff
+                    let k = _i, drop = 0;
+                    while (k <= i) {
+                        drop += nums[k];
+                        if (drop >= diff) {
+                            break;
+                        }
+                        
+                        k++;
+                    }
+
+                    // if we over diff or dropped i, we can't partition.
+                    if (k > i) {
+                        return false;
+                    } else if (drop > diff) {
+                        i++;
+                        sum += nums[i];
+                    } else {
+                        /*
+                            now k is pointing to the last value that need to be dropped
+                            drop _i to k
+                            by the end of the while loop, i should be pointing to the next start point
+                        */
+                        while (k >= _i) {
+                            sum -= nums[k];
+                            let temp = nums[i];
+                            nums[i] = nums[k];
+                            nums[k] = temp;
+                            k--;
+                            i--;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (i === j && nums[i] !== target) {
+            return false;
+        }
+
+        return true;
+    }  
+    
+    /*
+    console.log(canPartitionKSubsets([4,3,2,3,5,2,1], 4));
+    console.log(canPartitionKSubsets([1, 1, 1, 1], 2));
+    console.log(canPartitionKSubsets([4,15,1,1,1,1,3,11,1,10], 3));
+    console.log(canPartitionKSubsets([2,2,10,5,2,7,2,2,13], 3));
+    console.log(canPartitionKSubsets([4,4,6,2,3,8,10,2,10,7],4));
+    console.log(canPartitionKSubsets([2,11,1,10,4,10,1,4,2],3));
+    console.log(canPartitionKSubsets([2,10,5,2,7,2,2], 2));
+    */
+    
+    /*
+        Defect report:
+        Algorithm
+        1. the "first sort and then use two pointer algorithm is wrong". the reason is one partion doesn't have to be a consecutive sequence from left side and right side. e.g., [2,11,1,10,4,10,1,4,2], 3. the sorted array is [1, 1, 2, 2, 4, 4, 10, 10, 11]. you can have 1, 1, 2, 11 as the first partition but then you won't be able to partition 2, 4, 4, 10, 10. however, you could have done [1, 2, 2, 10] [1, 4, 10] and [4, 11]
+        
+    */
+    
+    /*******************************************************************/
+    /*
+        second approach using hash table. it's an improvement of the DP approach using a big matrix.
+        first you build a hash with how many times each number appears, sort the array. then start from the largetst value in the array loop to the smallest using a pointer k. 
+        
+        for each k, if you have it in the hash, then use it by subtracting its value from the target value and decrease its count by 1 in the hash. now you have a new target value. 
+        
+        at any point if your diff is equal to 0, you've found a partition. if your diff is less than 0 meaning you've picked a
+    */
+    var canPartitionKSubsets = function(nums, k) {
+        if (!nums || nums.length < k) {
+            return false;
+        }
+        
+        let sum, target;
+        sum = nums.reduce((a, x) => { return a + x; });
+        if (sum % k !== 0) {
+            return false;
+        } else {
+            target = Math.ceil(sum / k);
+        }
+        
+        let hash = {};
+        nums.sort((a, b) => { return a - b; });
+        nums.forEach((x) => {
+            if (hash[x] === undefined) {
+                hash[x] = 0;
+            }
+            
+            hash[x]++;
+        });
+        
+        /* 
+            there will be no backtracking in this case because to partion the set into equal parts, everything must be used.
+            each pass of the while loop will hopefully find a solution
+            we looping until there is nothing left in the hash meaning everything has been used
+            if by the end of the while loop we haven't returned false, that means the set can be partitioned to queal parts, then we should return true
+        */
+        while (Object.keys(hash).length > 0) {
+            let canPartition = {val: true};
+            findTarget(nums, hash, {val: target}, nums.length - 1, canPartition);    
+            if (!canPartition.val) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    function findTarget(nums, hash, target, index, canPartition) {
+        if (index < 0) {
+            canPartition.val = false;
+            return;
+        }
+        
+        if (hash[target.val] > 0) {
+            hash[target.val]--;
+            if (hash[target.val] === 0) {
+                delete hash[target.val];
+            }
+            
+            target.val = 0;
+            return;
+        }
+        
+        let i, cur;
+        for (i = index; i >= 0; i--) {
+            cur = nums[i];
+            if (hash[cur] > 0 && cur <= target.val) {
+                target.val -= cur;
+                hash[cur]--;
+                if (hash[cur] === 0) {
+                    delete hash[cur];
+                }
+                
+                findTarget(nums, hash, target, index--, canPartition);
+                if (!canPartition.val || target.val === 0) {
+                    return;
+                }
+            }
+        }
+        
+        /*
+            at this point, if target is not 0, the partition fails
+        */
+        if (target.val !== 0) {
+            canPartition.val = false;
+            return;
+        }
+    }
+    
+    /*
+    console.log(canPartitionKSubsets([4,3,2,3,5,2,1], 4));
+    console.log(canPartitionKSubsets([1, 1, 1, 1], 2));
+    console.log(canPartitionKSubsets([4,15,1,1,1,1,3,11,1,10], 3));
+    console.log(canPartitionKSubsets([2,2,10,5,2,7,2,2,13], 3));
+    console.log(canPartitionKSubsets([4,4,6,2,3,8,10,2,10,7],4));
+    console.log(canPartitionKSubsets([2,11,1,10,4,10,1,4,2],3));
+    console.log(canPartitionKSubsets([2,10,5,2,7,2,2], 2));
+    console.log(canPartitionKSubsets([2, 2, 2, 2, 3, 4, 5], 4));
+    */
+    console.log(canPartitionKSubsets([3522,181,521,515,304,123,2512,312,922,407,146,1932,4037,2646,3871,269],5));
+    /*
+        defect report:
+        algorithm:
+        1. by the end of the for loop, if the target is not 0, the partition fails. actually, if the partition succeeds, it will return early so you can just return false after the for loop.
+        
+        2. the last case can't be handled. the algorithm might be wrong.
+        
+        coding:
+        1. when there is an exact match of the target value, after decreasing hash[key], forgot to delete the hash[cur] if it reaches 0.
+    */
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

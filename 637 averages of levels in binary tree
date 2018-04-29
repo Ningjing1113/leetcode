@@ -1,0 +1,84 @@
+/*
+    637 averages of levels in binary tree
+*/
+
+var averageOfLevels = function(root) {
+    let hash = {}, queue = [];
+    root.level = 0;
+    queue.push(root);
+    while(queue.length > 0) {
+        let cur = queue.shift();
+        if (!hash.hasOwnProperty(cur.level)) {
+            hash[cur.level] = {sum: 0, num: 0};
+        }
+        
+        hash[cur.level].sum += cur.val;
+        hash[cur.level].num++;
+        
+        if (cur.left) {
+            cur.left.level = cur.level + 1;
+            queue.push(cur.left);
+        }
+        
+        if (cur.right) {
+            cur.right.level = cur.level + 1;
+            queue.push(cur.right);
+        }
+        
+        delete cur.level;
+    }
+    
+    return Object.values(hash).map(obj => {
+        return obj.sum / obj.num;
+    });
+};
+
+/* 
+    solution 2: keep track on the current level and the number of nodes (using a counter) visited on this level, calculate the average when level increases and reset the counter 
+*/
+
+var averageOfLevels = function(root) {
+    let hash = {}, queue = [], preLevel = 0, curlevel = 0, counter = 0;
+    
+    root.level = 0;
+    queue.push(root);
+    while(queue.length > 0) {
+        let cur = queue.shift();
+        if (!hash.hasOwnProperty(cur.level)) {
+            hash[cur.level] = 0;
+        }
+        
+        hash[cur.level] += cur.val;
+        
+        curLevel = cur.level;
+        if (curLevel > preLevel) {
+            hash[preLevel] /= counter;
+            preLevel = curLevel;
+            counter = 1;
+        } else {
+            counter++;
+        }
+        
+        if (cur.left) {
+            cur.left.level = cur.level + 1;
+            queue.push(cur.left);
+        }
+        
+        if (cur.right) {
+            cur.right.level = cur.level + 1;
+            queue.push(cur.right);
+        }
+        
+        delete cur.level;
+    }
+    
+    hash[curLevel] /= counter;
+    
+    return Object.values(hash);
+};
+
+/*
+    if you are not allowed to add level on the node
+*/
+
+

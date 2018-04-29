@@ -1,0 +1,59 @@
+/*
+    113 Path sum II
+*/
+
+/*
+    pass an object to the recursion function to track the data and status
+    
+    use the leaf node as the base case because that's when you start checking the status of the data. in some other case, you also need to check the status when the recursion returns back from the children nodes.
+    
+    the structure of the recursion function resembles backtracking. there are 2 steps:
+    check if you've reached the base case
+    if not, enumerate all options for the next step (in binary tree, that's left child and right child, if they exist). remember to step back (backtrack) after exploring one option
+    
+    there are two places you can check the data of the current node: right after entering or before leaving the recursion function. you may consider pre process and post process.
+    
+*/
+var pathSum = function(root, sum) {
+    if (!root) {
+        return [];
+    }
+    
+    var data = {curSum: root.val, path:[], curPath:[root.val]};
+    _pathSumRecursive(root, sum, data);
+    return data.path;
+} 
+
+function _pathSumRecursive(root, sum, data) {
+    if (!root.left && !root.right) {   
+        if (data.curSum === sum) {
+            data.path.push(data.curPath.map(function(val) {
+                return val;
+            }));
+        }
+
+        return;
+    }
+        
+    if (root.left) {
+        data.curPath.push(root.left.val);
+        data.curSum += root.left.val;
+        _pathSumRecursive(root.left, sum, data);
+        
+        data.curPath.pop();
+        data.curSum -= root.left.val;
+    }
+    
+    if (root.right) {
+        data.curPath.push(root.right.val);
+        data.curSum += root.right.val;
+        _pathSumRecursive(root.right, sum, data);
+        data.curPath.pop();
+        data.curSum -= root.right.val;
+    }
+}
+
+/*
+    Bug:
+    1. since you are using curPath as 
+*/

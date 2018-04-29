@@ -1,0 +1,109 @@
+/*
+    437 path sum III
+*/
+
+/*
+    passing down an array to track the current path and using dp to find all sub arrays that add up to the target sum value.
+*/
+
+var pathSum = function(root, sum) {
+    var trace = [root.val], paths = {val: 0};
+    _pathSumRecursive(root, sum, trace, paths);
+    return paths.val;
+}
+
+function _pathSumRecursive(root, sum, trace, paths) {
+    if (!root.left && !root.right) {
+        var i, j, m;
+        
+        /* 
+            creating the maxtrix, default value will be NaN
+        */
+        m = new Array(trace.length);
+        for (i = 0; i < m.length; i++) {
+            m[i] = new Array(trace.length);
+            for (j = 0; j < trace.length; j++) {
+                m[i][j] = 0;
+            }
+        }
+        
+        /* base case on the diagonal */
+        for (i = 0; i < trace.length; i++) {
+            m[i][i] = trace[i];
+            if (m[i][i] === sum) {
+                console.log("find one path");
+                paths.val++;
+            }
+        }
+        
+        for (l = 2; l <= trace.length; l++) {
+            for (i = 0; i + (l - 1) < trace.length; i++) {
+                /* 
+                    for a sub array of length l, it starts from i, take l -1 steps and ends at i + (l - 1) 
+                */
+                j = i + (l - 1);
+                m[i][j] = m[i][j-1] + m[i+1][j] - m[i+1][j-1] || 0;
+                if (m[i][j] === sum) {
+                    console.log("find one path.");
+                    paths.val++;
+                }
+            }
+        }
+        
+        console.log(m);
+        return;
+    } 
+    
+    if (root.left) {
+        /* 
+            put the value of the current root into the trace array, traverse and then pop
+            make sure when you start at one note (or returned to it after traversing the children), you are only tracing the values above this node (not including this node itself)
+        */
+        trace.push(root.left.val);
+        _pathSumRecursive(root.left, sum, trace, paths);
+        trace.pop();
+    }
+
+    if (root.right) {
+        trace.push(root.right.val);
+        _pathSumRecursive(root.right, sum, trace, paths);
+        trace.pop();
+    }
+}
+
+/*
+    Bug:
+    1. the algorithm can't identify redundant numbers because it doesn't distinguish between left and right child on the path. for example, 10 5 null 3 null  3 -2, sum = 8. 5+3 will be calculated twice
+*/
+
+/*
+     
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

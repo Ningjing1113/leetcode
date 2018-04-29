@@ -1,0 +1,55 @@
+/*
+    484 find permutation
+*/
+
+/*
+    find the smallest set of numbers you need to satisfy the increasing-decreasing pattern
+    
+    build a hash when you are looking for this set of numbers, track the min, max and the indexes where each number appears
+    
+    traverse the hash from the min to max, for each number, traverse the indexes (the indexes should already be sorted if you traverse the pattern from left to right)
+    
+    for each index, assign a integer starting from 1, then you will have the smallest permutation that satisfy the pattern
+*/
+
+var findPermutation = function(s) {
+    var min = Infinity, max = -Infinity, hash = {0: [0]}, num = 0;
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] === "D") {
+            num--;
+        } else if (s[i] === "I") {
+            num++;
+        }
+        
+        if (!hash.hasOwnProperty(num)) {
+            hash[num] = [];
+        }
+        
+        hash[num].push(i + 1);
+        
+        if (num < min) {
+            min = num;
+        } else if (num > max) {
+            max = num;
+        }
+    }
+    
+    console.log(hash);
+    let j = 1, permutation = new Array[s.length + 1];
+    for (let k = min; k <= max; k++) {
+        for (let i = 0; i < hash[k].length; i++) {
+            let index = hash[k][i];
+            permutation[index] = j;
+            j++;
+        }
+    }
+    
+    return permutation;
+
+}
+
+console.log(findPermutation("DI"));
+
+// remove the follow line
+                this.model.set('lastTekErrorCode', dtxUtil.tekErrorCodes.OWEBAUTH_TOKEN_EXPIRE);
+                

@@ -1,0 +1,123 @@
+/*
+    
+    351 android unlock pattern
+    
+    */
+      
+    /*
+        backtracking with caching (or not)
+        
+        you need a number hash to track which number you've already used, so when you can't choose this number as your next number, or you can choose this number as a stepping stone to reach another number, notice there could be more than one stepping stone.
+        
+        if you are coming back to a previously used number, and you know from that point how many options you have to choose k numbers. are  you able to reuse this result? maybe not, because for those options you have, you don't know whether those number have been taken.
+        
+        you definitely need to track how many numbers you've chosen and what is the previous number you chose, from that point, you choose the next one if there is spots left.
+        
+        the base case of the backtracking would be when you first reaches m numbers, you got a solution, then you need to keep going and every choice you made after that will be a solution until you reach N numbers. since you are only calculating how many pattern we can have, you can just pass down one variable 
+        
+        for each step, you have at most 8 directions as the next step (if your current step is not the last step of course). if you go around the current step to check all 8 possible next steps, if the next step is already in the hash, then you can't take this number but you can use it as a stepping stone, so go around this step to find the next step (BFS); otherwise the next step is not in the hash yet, if it hasn't been picked as your next step either, you can pick it. The idea is to go around your current step, and keep going around if the next step is not picked (either as previous number or the next step candidate) by using a hash to track what options you've already picked.
+        
+        time complexitty estimation, we need to make m to n choices, let k = (m + n) / 2 as the average choices you have, for each choice you have at most 8 options, so the complexity is 8^k = 2^(3k). since the average number of password is around 4 to 6 letter, if we take 5, the complexity is 2^15. 
+        
+        it's still possible especiall we won't have 8 options at each step so the pracical complexity is going to be lower than 2^15.
+    */
+    
+    var numberOfPatterns = function(m, n) {
+        var patter = {count: 0};
+        for (i = 0; i < 10; i++) {
+            hash[i] = true;
+            backtracking(hash, 1, i, m, n, pattern);
+            hash[i] = false;
+        }
+        
+        return pattern.count;
+    }
+    
+    function backtracking(hash, step, number, m, n, pattern) {
+        if (step >= m + 1 && step <= n + 1) {
+            pattern.count++;
+            if (step === n + 1) {
+                return;
+            }
+        }
+        
+        let options = {};
+        getNextStep(hash, number, options);
+        Object.keys(options).forEach((num) => {
+            hash[num] = true;
+            backtracking(hash, step + 1, num, m, n, pattern);
+            hash[num] = false;
+        });
+    }
+    
+    function getNextStep(hash, number, options) {
+        var checkNextStep = function() {
+            if (next > 0) {
+                if (!hash[next]) {
+                    if (!options[next]) {
+                        options[next] = true;
+                    }
+
+                } else {
+                    getNextStep(hash, number, options);
+                }
+            }        
+        }
+        
+        let next;
+        if ([1, 2, 3].indexOf(number) < 0) {
+            next = number + 1;
+            checkNextStep(next);
+        }
+        
+        if ([3, 6, 9].indexOf(number) < 0) {
+            next = number + 1;
+            checkNextStep(next);
+        }
+        
+        if ([7, 8, 9].indexOf(number) < 0) {
+            next = number - 1;
+            checkNextStep(next);
+        }
+        
+        if ([1, 4, 7].indexOf(number) < 0) {
+            checkNextStep(next)
+        }
+        
+        if ([2, 3, 5, 6].indexOf(number) > 0) {
+            next = number - 4;
+            checkNextStep(next);
+        }
+        
+        if ([5, 6, 8, 9].indexOf(number) > 0) {
+            next = number + 2;
+            checkNextStep(next);
+        }
+        
+        if ([4, 5, 7, 8].inexOf(number) > 0) {
+            next = number - 2;
+            checkNextStep(next);
+        }
+        
+        if ([1, 2, 4, 5].indexOf(number) > 0) {
+            next = number + 4;
+            checkNextStep(next);
+        } 
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

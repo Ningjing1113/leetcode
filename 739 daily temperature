@@ -1,0 +1,17 @@
+/*
+    739 daily temperature
+*/
+
+var dailyTemperatures = function(temperatures) {
+    var stack = [], cur, i;
+    for (i = 0; i < temperatures.length; i++) {
+        cur = temperatures[i];
+        top = stack[stack.length - 1];
+        if (!top) {
+            stack.push(cur);
+            continue;
+        }
+        
+        
+    }
+};

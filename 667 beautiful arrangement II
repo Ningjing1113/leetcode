@@ -1,0 +1,37 @@
+//667 beautiful arrangement II
+
+function beautifulArrangement(n, k) {
+    var arr=[1], _n=n, _m = 2, left = false;
+    
+    // take a number from far left and then far right then far left ...
+    // untill we have k - 1 difference
+    for (i=1; i<k; i++) {
+        if (left) {
+            arr.push(_m);
+            _m++;
+            left = false;
+        } else {
+            arr.push(_n);
+            left = true;
+            _n--;
+        }
+    }
+    
+    // fill up the rest
+    if (left) {
+        // the last number was taken from the far right 
+        // the rest numbers forms a decreasing sequence
+        while (arr.length < n) {
+            arr.push(_n);
+            _n--;
+        }
+    } else {
+        // the rest numbers forms a increasing sequence
+        while (arr.length < n) {
+            arr.push(_m);
+            _m++;
+        }
+    }
+    
+    return arr;
+}

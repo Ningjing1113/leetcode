@@ -1,0 +1,95 @@
+/*
+    accepted 299 ms
+    240 search a 2-D matrix II
+*/
+
+/*
+    
+*/
+var searchMatrix = function(matrix, target) {
+    if (!matrix || matrix.length === 0 || matrix[0].length === 0) {
+        return false;
+    }
+    
+    var row = {low: 0, high: matrix.length - 1}, col = {low: 0, high: matrix[0].length - 1};
+    return search(row, col, matrix, target);
+};
+
+/* recursively search a sub matrix, dividing it into a square and a regular matrix */
+function search(row, col, matrix, target) {
+    var height, width;
+    height = row.high - row.low + 1;
+    width = col.high - col.low + 1;
+    if (height <= 0 || width <= 0) {
+        return false;
+    }
+    
+    
+    if (height === width) {
+       return searchSquare(row, col, matrix, target);
+    } else if (height > width) {
+        return searchSquare({low:row.low, high:row.low + width - 1}, col, matrix, target) ? true : search({low: row.low + width, high: row.high}, col, matrix, target);
+    } else {
+        return searchSquare(row, {low:col.low, high:col.low + height - 1}, matrix, target) ? true : search(row, {low:col.low + height, high: col.high}, matrix, target);
+    }
+}
+
+function searchSquare(row, col, matrix, target) {
+    var i = row.low, j = col.low;
+    while (i <= row.high && j <= col.high) {
+        if (matrix[i][j] === target) {
+            return true;
+        } else if (matrix[i][j] > target) {
+            /* search upper right and lower left */
+            return search({low: row.low, high: i - 1}, {low:j, high:col.high}, matrix, target) ? true : search({low:i, high:row.high}, {low:col.low, high:j - 1}, matrix, target);
+        } else {
+            i++;
+            j++;
+        }
+    }
+    
+    return false;
+}
+
+/*
+
+*/
+var searchMatrix = function(matrix, target) {
+    if (!matrix || matrix.length === 0 || matrix[0].length === 0) {
+        return false;
+    }
+    
+    var row = {low: 0, high: matrix.length - 1}, col = {low: 0, high: matrix[0].length - 1};
+    return search(row, col, matrix, target);
+};
+
+function search(row, col, matrix, target) {
+    //console.log(row);
+    //console.log(col);
+    if (row.high < row.low || col.high < col.low) {
+        return false;
+    }
+    
+    var i = row.low, j = col.low;
+    while (i <= row.high && j <= col.high) {
+        //console.log(matrix[i][j]);
+        if (matrix[i][j] === target) {
+            return true;
+        } else if (matrix[i][j] > target) {
+            return search({low: row.low, high: i - 1}, {low: j, high: col.high}, matrix, target) ? 
+                true : 
+                search({low: i, high: row.high}, {low: col.low, high: j - 1}, matrix, target);
+        } else {
+            i++;
+            j++;
+        }
+    }
+    
+    if (i > row.high) {
+        //console.log("continue searching to the right");
+        return search(row,{low: j, high: col.high}, matrix, target);
+    } else if (j > col.high) {
+        //console.log("continue searching to the bottom");
+        return search({low: i, high: row.high},col, matrix, target);
+    }
+}

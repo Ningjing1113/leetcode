@@ -1,0 +1,45 @@
+/*
+    accepted 115ms
+    98 validate binary search tree
+*/
+
+var isValidBST = function(root) {
+    var data = {lowerBound:-Infinity, upperBound: +Infinity, isBST: true};
+    _recurse(root, data);
+    return data.isBST;
+}
+
+function _recurse(root, data) {
+    if (!root) {
+        return;
+    }
+    
+    if (root.val >= data.upperBound || root.val <= data.lowerBound) {
+        data.isBST = false;
+        return;
+    }
+    
+    var _preLowerBound = data.lowerBound, _preUpperBound = data.upperBound;
+    data.upperBound = root.val;
+    _recurse(root.left, data);
+    
+    if (!data.isBST) {
+        return;
+    }
+    
+    data.upperBound = _preUpperBound;
+    data.lowerBound = root.val;
+    _recurse(root.right, data);
+    
+    if (!data.isBST) {
+        return;
+    }
+    
+    data.lowerBound = _preLowerBound;
+}
+
+/*
+    Bug:
+    1. after coming back from the recursion, the upperBound (for left child) or lowerBound (for right child) needs to be resotred.
+    2. BST shouldn't have duplicate values
+*/

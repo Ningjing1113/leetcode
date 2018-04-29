@@ -1,0 +1,46 @@
+data structures and algorithms
+
+two pointers:
+1. a very common pattern is setting up two pointers and go through a data structure once (array, string). the two pointers can start from the same side and move along, or they can start from both sides and move toward the center. in palindrome related problems, the two pointers can start from a center point and move away from each other
+2. an extension from the first pattern is by setting up two pointers that traverse two data structures (the last step of merge sort) or one pointer that traverse two data structure (string comparing).
+3. another pattern of two pointers can be regarded as "probing", meaning two pointers starts from the starting point, but only one pointer is moving. when the moving pointer stops, it forms a range between the starting point pointed by pointer i, and the moving pointer j. one detail is depending on when pointer j stops, the length of the range can be j - i (if j stops at the first value that is NOT included in the range), or j + 1 - i (if j stops at the last value that is included). sometimes you need 3 pointer for this probing.
+4. another pattern is repeating ranges. the probing of ranges is nested within an outer loop that guards the moving pointer to make sure it doesn't go out of boundary. after each range, i needs to be advanced to either j or j + 1 (depending on whether j stops at the first exclusive value or the last inclusive value).
+5. the repeating range pattern can be extended to solve some hard problems that requires multiple data structures. e.g. the shortest window in string s that include a permutation of string t. the part that is harder is once moving pointer j, some information needs to be maintained, when advancing pointer i, some information needs to be updated and also maintained.
+6. a special case of range probing is the partition algorithm in quick sort, by moving j first and advancing i, values are swapped.
+
+composition of basic operations:
+when things are composed together, they get seemingly complicated, but if you see through them and isolate them into small pieces that work together, they won't be that complicated anymore.
+1. the most common composition is nested loops. in bubble sort, there are two layer of nested for loops. a slightly more complicated example is finding all sub string of a string (including substrings with length 1, 2, ... n, given the length of the original string is n). this can be useful for some DP problems
+2. another loop composition is for loop nested within a while loop. this appears in the merge k sorted lists problem.
+3. the probing multiple ranges problems is while nested within another while
+
+hash set/table/map
+if label is important to you, you can be specific about set, table and map, otherwise you can just call it hash, but be specific about the data structure of the key and value.
+1. the most basic benefit hash can provide is O(1) access to a set of data and the flexibility to use any type of data structure as the value, which enable hash to support data structure composition by nature. you can even have another hash as the key of hash, giving you a matrix for either graph or cache for DP.
+2. another feature about hash is what can be called hidden order. for example, if you are traversing a string and you are saving the unique letters and the indices where they appear in the string, then key and/or value of your hash will be sorted. for the key, the order follows the order in which the letters appear in the string; for the values, since you are traversing from left to right, the indices will be in ascending order. or you can make the indices descending if you see that useful for the problem you are solving. the point here, hash gives you the flexibility to compose and customize your data structure to better solving the problem.
+3. hash table can be transformed into other data structures if you see fit. the keys and values can be transformed to arrays if you need to operate solely on them. in javascript, the whole hash is an object.
+
+tree:
+1. DFS in tree can be categorized as pre order, in order or post order traverse. it's essentially just depth first search, the only difference is the order of processing different nodes. for the root node, if you process when you first discover it, it's pre order; if you process it after all children are fully processed, it's post order; if you process it in the middle, it's in order. in order is unique for binary tree as the general DFS in a tree or a graph normally do early process or late process of a node unless you have good reason to go process the current node half way visiting the children.
+2. pre order and post order is more commonly seen than in order. post order is relatively harder because you basically need to consolidate the data you collected from the left tree and right tree at the root. depending on the problem, the 'consolidate' can be complicated. e.g., lowest common ancestor can be solved by first looking at left tree in case it has one of the target nodes, then the right tree. if when you come to the current node, none of the target nodes are found, and one of them is in the left tree, the other is in the right tree, then the current node is the lowest common ancestor. or if the current node is one of the target node, and the other one exist in either left or right tree, then the current node is lowest common ancestor. e.g., longest increasing path. at each node, there are 3 possible paths.
+3. binary search tree is a special type of tree. problems around binary search tree can become interesting when there is no exact match in the tree. the key is to remember, you are searching a value within a range, the lower bound of this range increase when you go down the right tree, the upper bound decreases when you go down the left tree.
+4. binary search tree resembles some sorting related problems as a node is the pivot value of a partition of what are smaller and what are larger.
+5. BFS in tree is layer by layer traverse, it can be replaced by DFS if you pass down a reference type variable that tracks the layer of the current node.
+6. parent link in binary search tree is the key to find the next smaller or next larger.
+
+stack:
+1. collision (first large, first small)
+2. nested data structures. (number of atoms)
+
+matrix:
+1. calculate the maxRow and maxCol, you will need them to make sure the move stays within the matrix
+2. matrix can be seen as a unweighted graph, so if you apply a BFS in a matrix, you are able to find the shortest path between two points
+3. either from the top left corner going right and downward, or from the bottom right corner going up and left, DP can be applied within a matrix
+4. DFS
+5. be fluent on accessing the nearby cells, up, right, bottom, left, sometimes diagonal.
+
+BFS
+DFS
+Graph
+backtracking
+Dynamic programming
