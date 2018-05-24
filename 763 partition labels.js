@@ -33,7 +33,7 @@ var partitionLabels = function(S) {
       ranges[hash[S[i]]].end = i;
     }
   }
-
+ 
     //console.log(ranges);
   ranges.sort((a, b) => {
     return a.start - b.start;
